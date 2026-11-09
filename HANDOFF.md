@@ -5,7 +5,7 @@ Read this file and `docs/Project_Plan.md` (v1.0, approved) first.
 
 | Item | Value |
 |---|---|
-| Current version | 0.1.6 (see `version.txt`) |
+| Current version | 0.1.7 (see `version.txt`) |
 | Current phase | Phase 5 – Sequence window + engine: **done** |
 | Next phase | Phase 6 – Polish & Release (themes, Nuitka build, user manual) |
 | Project folder (user) | *to be filled in by the user* |
@@ -20,7 +20,7 @@ Read this file and `docs/Project_Plan.md` (v1.0, approved) first.
 
 ## 2. Setup and run (Windows)
 1. `setup_venv.bat` – creates `.venv` and installs `requirements.txt`.
-2. `run_tests.bat` – runs all tests (expect 150 passed with PySide6; without PySide6 the Qt window tests are skipped).
+2. `run_tests.bat` – runs all tests (without PySide6 the Qt window tests are skipped).
 3. `run_app.bat` – starts the GUI (front panel; Settings via its button).
 4. `run_console.bat` – console check (scan + configure + close), same as `python main.py --console`.
 5. `--simulate` (GUI or console) forces the simulation backend.
@@ -31,6 +31,7 @@ Read this file and `docs/Project_Plan.md` (v1.0, approved) first.
 |---|---|---|
 | `core/app_paths.py` | Done | Root detection: Nuitka (`__compiled__`) → EXE folder; frozen → EXE folder; dev → folder of `main.py` |
 | `core/logger.py` | Done | Daily file, retention from config |
+| `core/activity_trace.py` | Done | Thread-safe, in-memory trace, latest 50 bounded entries; independent of persistent log threshold |
 | `core/models.py` | Done | Data classes; defaults are NOT in code, they come from the template |
 | `core/catalogs.py` | Done | `load_all_catalogs()` loads every `config/presets/*.json`; `discover_themes()` scans theme folders |
 | `core/config_manager.py` | Done | Load/create/repair/migrate/save; `MIGRATIONS` dict ready for future structure versions |
@@ -50,6 +51,7 @@ Read this file and `docs/Project_Plan.md` (v1.0, approved) first.
 | `core/front_panel.py` | Done | `ChannelControl` (range, steps, knob mapping, display), `SlewRamp` |
 | `ui/main_panel.ui` / `ui/main_panel_widgets.py` | Done | Front-panel form + widget spec |
 | `ui/main_panel.py` | Done | Main window; ramps via QTimer; output state set optimistically on request, corrected by `EVT_OUTPUT` / command result |
+| `ui/log_window.py` | Done | Nonmodal, read-only, polled view of the in-memory activity trace |
 | `core/sequence_model.py` | Done | `Sequence`, `SequenceStep`, `load_sequence()`, `save_sequence()` (format_version 1) |
 | `core/sequence_engine.py` | Done | `validate_sequence()`, `build_plan()`, `preview_values()`, `SequenceRunner` (thread, pause/resume/stop, end states, timing log, `status()` snapshot) |
 | `core/sequence_players.py` | Done | `Clock`, `RunControl`, `SequencePlayer` interface, `SoftwarePlayer`; `PLAYERS` table by timing mode (FE-01 adds "hardware") |
@@ -85,7 +87,7 @@ Read this file and `docs/Project_Plan.md` (v1.0, approved) first.
 - GUI is the default start mode; `--console` for the console check.
 
 ### v0.1.3 – Phase 4 Front Panel
-- Front panel is the main window: voltage / current sections (7-segment display, "Sent" value, range, knob, entry, step buttons, step size from `step_sizes.json`), Output button with LED, toolbar (Settings, Sequence, Exit), status bar (channels, AO volts, messages), hidden Measured area (FE-02).
+- Front panel is the main window: voltage / current sections (7-segment display, "Sent" value, range, knob, entry, step buttons, step size from `step_sizes.json`), Output button with LED, toolbar (Settings, Sequence, Log), status bar (channels, AO volts, messages), hidden Measured area (FE-02).
 - Output OFF stores, Output ON writes; jump by default, slew-rate ramps when enabled (Output ON from safe value, retarget from actual, OFF cancels).
 - Start-up: configure automatically; first start opens Settings; missing device offers Settings.
 - Settings → Save refreshes the panel; the configured theme is loaded at startup; step sizes and window geometry are saved on exit; confirmation when closing with output ON.
@@ -97,6 +99,17 @@ Read this file and `docs/Project_Plan.md` (v1.0, approved) first.
 - Front panel locked during runs, displays follow the sequence, Output OFF stops the sequence, Settings disabled during runs.
 - New settings: `sequence.ramp_interval_ms`, `spin_wait_ms`, `new_step_duration`, `status_poll_ms`.
 - Example file `sequences/Example_from_request.json`.
+
+### v0.1.7 – Activity Log, manual setpoints, and windowless build
+- Log opens a nonmodal, in-memory session trace. The most recent 50 bounded
+  entries are retained; the trace itself is not written to disk. Existing
+  daily file logging remains in place.
+- The last manually chosen setpoints are saved on normal close independently
+  of sequence values. Startup restores valid values with output OFF; invalid
+  or out-of-range values use the channel minimum.
+- The main window's close control replaces the former Exit button. The EXE
+  runs without a console, displays startup errors in a dialog, and has a
+  circular power-supply icon. Source-mode console checks remain available.
 
 ## 5. Config-driven data – where to change things
 
@@ -130,7 +143,8 @@ D-01 software timing, 50 ms min · D-02 Set/Ramp/Stop, current optional, PS unit
 
 ## 7. Open points
 - Pin package versions after first install on the build PC.
-- Run `build_nuitka.bat` on the build PC to rebuild the current standalone package; verify it on a clean target PC before release.
+- The v0.1.7 standalone build and an isolated simulated GUI startup/shutdown
+  were verified on the build PC; verify the package on a clean target PC before release.
 - Test the NI-DAQmx backend on real hardware (scan, configure, write, unplug while ON) and record the driver version.
 - Decide whether test benches use `daq.backend = "nidaqmx"` instead of `auto` (prevents an unnoticed simulation fallback).
 - User project folder path to be added in the table above.
@@ -139,13 +153,13 @@ D-01 software timing, 50 ms min · D-02 Set/Ramp/Stop, current optional, PS unit
 - Fill `resources/themes/<id>/style.qss` (dark industrial: dark blue-gray, light linear buttons with blue accent, blue primary Output button); `MainPanel.apply_theme()` already loads the file of the active theme for the whole application.
 - Run the root-level `build_nuitka.bat`; it publishes `build/dist/PS_Control/PS_Control.exe` with `ui/*.ui`, `config/defaults`, `config/presets`, `config/simulation`, `resources`, `sequences`, and `version.txt` alongside it. Confirm `config/settings.json` is created on first start.
 - The EXE version resource uses `OriginalFilename = PS_Control.exe` and the four-part `FileVersion` from `version.txt`.
-- Release build: switch the console off (`--windows-console-mode=disable`), add icon and version info.
+- The EXE uses `--windows-console-mode=disable` and `resources/icons/ps_control.ico`; source-mode console checks remain available.
 - Write the user manual (from `PROJECT_OVERVIEW.txt` + screenshots in `docs/screenshots`).
 - Hardware acceptance test on a real AO module (scan, Settings save, Output ON/OFF, ramps, sequence with timing log, unplug during a run).
 - Pin package versions in `requirements.txt`.
 
 ## 9. Phase 6 scope (next)
-Theme stylesheets, layout tuning on Windows / small screens, Nuitka release build script (no console and icon), user manual, final handoff, hardware acceptance test checklist.
+Theme stylesheets, layout tuning on Windows / small screens, user manual, final handoff, clean-target validation and hardware acceptance test checklist.
 
 ## 10. Development environment note
 The Qt tests ran offscreen on Linux (PySide6 6.12). On Windows they run normally with `run_tests.bat`; no display setting is needed (the tests set `QT_QPA_PLATFORM=offscreen` themselves).

@@ -10,6 +10,7 @@ test thread (results and events arrive synchronously).
 
 # Import os to select the offscreen Qt platform before Qt is imported.
 import os
+import json
 
 # Import pytest for fixtures, float comparison and skipping.
 import pytest
@@ -26,6 +27,7 @@ from PySide6.QtWidgets import QApplication  # noqa: E402
 from core.bootstrap import startup  # noqa: E402
 # Import the DAQ service.
 from core.daq_service import DaqService  # noqa: E402
+from core.activity_trace import activity_trace  # noqa: E402
 # Import the simulation backend.
 from core.simulation import SimulatedBackend  # noqa: E402
 # Import the window under test.
@@ -137,6 +139,126 @@ def test_configured_enables_controls(panel):
     assert V_CH in panel.w["lblStatusChannels"].text()
     # SIMULATION indicator not hidden.
     assert not panel.w["lblSimulation"].isHidden()
+
+
+def test_log_window_retains_activity_before_open_and_after_reopen(panel):
+    """Log is nonmodal and retains recent activity even when it is hidden."""
+    panel.set_target("voltage", 7)
+    panel.w["btnLog"].click()
+    log = panel.log_window
+    assert log is not None and log.isVisible() and not log.isModal()
+    assert "Manual voltage setpoint: 7" in log.entries.toPlainText()
+    log.close()
+    panel.set_target("current", 8)
+    panel.w["btnLog"].click()
+    log.refresh()
+    assert panel.log_window is log
+    assert "Manual current setpoint: 8" in log.entries.toPlainText()
+    assert "DAQ configure: ready" in log.entries.toPlainText()
+
+
+def test_log_window_shows_only_latest_50_entries(panel):
+    """The displayed trace is capped even after a burst while the log is closed."""
+    activity_trace.clear()
+    for i in range(51):
+        activity_trace.add(f"test entry {i}")
+    log = panel.open_log()
+    lines = log.entries.toPlainText().splitlines()
+    assert len(lines) == 50
+    assert lines[0].endswith("test entry 1")
+    assert lines[-1].endswith("test entry 50")
+
+
+def test_manual_setpoints_restore_with_output_off(qapp, app_root):
+    """After closing, only manually selected values are restored without output writes."""
+    first = make_panel(app_root)
+    first.set_target("voltage", 12.5)
+    first.set_target("current", 42)
+    first._on_sequence_values({"voltage": 18, "current": 70})
+    first.toggle_output()
+    assert first.output_on
+    first.close()
+    first.test_service.close()
+    second = make_panel(app_root)
+    try:
+        assert second.controls["voltage"].target == pytest.approx(12.5)
+        assert second.controls["current"].target == pytest.approx(42)
+        assert second.w["v_dsbEntry"].value() == pytest.approx(12.5)
+        assert second.w["i_dsbEntry"].value() == pytest.approx(42)
+        assert not second.output_on and not second.test_service.state.output_on
+        assert second.test_backend.history == [(V_CH, 0.0), (I_CH, 0.0)]
+        assert second.test_service.state.setpoints == {"voltage": 12.5, "current": 42}
+    finally:
+        second.close()
+        second.test_service.close()
+
+
+@pytest.mark.parametrize("saved", [None, -1, 21, "bad", True, float("nan"), float("inf"), 10 ** 400])
+def test_invalid_saved_setpoint_uses_channel_minimum(qapp, app_root, saved):
+    """Absent, invalid, nonfinite and out-of-range values fall back to PS minimum."""
+    from core.config_manager import ConfigManager
+    manager = ConfigManager(app_root, "test")
+    config = manager.load().config
+    config.voltage_channel.ps_min = 2.0
+    config.ui.last_manual_voltage = saved
+    manager.save(config)
+    win = make_panel(app_root)
+    try:
+        assert win.controls["voltage"].target == 2.0
+        assert not win.output_on
+    finally:
+        win.close()
+        win.test_service.close()
+
+
+def test_settings_save_does_not_replace_manual_targets(panel):
+    """A settings working-copy replacement preserves unsaved manual targets."""
+    panel.set_target("voltage", 12)
+    dialog = panel.open_settings()
+    dialog.w["v_dsbPsMax"].setValue(40)
+    assert dialog.save()
+    dialog.close()
+    panel.close()
+    saved = json.loads(panel.test_ctx.paths.settings_file.read_text(encoding="utf-8"))
+    assert saved["ui"]["last_manual_voltage"] == 12
+
+
+def test_range_change_resets_out_of_range_manual_target(panel):
+    """A settings range change does not leave an invalid saved manual value."""
+    panel.set_target("voltage", 15)
+    dialog = panel.open_settings()
+    dialog.w["v_dsbPsMax"].setValue(10)
+    assert dialog.save()
+    dialog.close()
+    panel.close()
+    saved = panel.test_ctx.manager.load().config
+    assert saved.ui.last_manual_voltage == saved.voltage_channel.ps_min
+
+
+def test_cancelled_close_does_not_save_manual_values(panel):
+    """Declining the output-on close prompt does not persist the new values."""
+    panel.set_target("voltage", 10)
+    panel.toggle_output()
+    panel.confirm_exit = lambda: False
+    panel.show()
+    panel.close()
+    assert panel.isVisible()
+    assert panel.test_ctx.manager.load().config.ui.last_manual_voltage is None
+    panel.confirm_exit = lambda: True
+
+
+def test_save_failure_is_shown_but_close_remains_safe(panel, monkeypatch):
+    """A preference write failure is visible and does not block safe shutdown."""
+    messages = []
+    def fail(_config):
+        raise OSError("disk unavailable")
+    monkeypatch.setattr(panel.test_ctx.manager, "save", fail)
+    monkeypatch.setattr("ui.main_panel.QMessageBox.warning",
+                        lambda _parent, title, text: messages.append((title, text)))
+    panel.show()
+    panel.close()
+    assert not panel.isVisible()
+    assert messages and "disk unavailable" in messages[0][1]
 
 
 def test_setpoint_while_off_is_not_written(panel):

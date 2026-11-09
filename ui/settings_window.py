@@ -43,6 +43,7 @@ from core.daq_service import DaqService
 from core.settings_editor import CURRENT, VOLTAGE, SettingsEditor, format_range
 # Import the logger factory.
 from core.logger import get_logger
+from core.activity_trace import activity_trace
 # Import the Qt bridge.
 from ui.daq_bridge import DaqBridge
 # Import the .ui loader helpers.
@@ -762,10 +763,12 @@ class SettingsWindow(QDialog):
         Returns:
             bool: True when the settings were written.
         """
+        activity_trace.add("Settings save requested")
         # Validate the working copy.
         errors, _warnings = self.editor.validate()
         # Errors block saving.
         if errors:
+            activity_trace.add("Settings not saved: " + "; ".join(errors))
             # Explain.
             self._status = "Not saved - fix the errors below."
             # Show.
@@ -780,6 +783,7 @@ class SettingsWindow(QDialog):
             self._ctx.manager.save(self.editor.config)
         # Disk problem.
         except OSError as exc:
+            activity_trace.add(f"Settings save failed: {exc}")
             # Show it.
             self._status = f"Not saved - file error: {exc}"
             # Show.
@@ -788,6 +792,7 @@ class SettingsWindow(QDialog):
             return False
         # The saved copy becomes the active configuration.
         self._ctx.load_result.config = copy.deepcopy(self.editor.config)
+        activity_trace.add("Settings saved")
         # No unsaved changes any more.
         self.editor.mark_saved()
         # Tell other windows.

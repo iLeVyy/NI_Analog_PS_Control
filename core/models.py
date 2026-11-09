@@ -228,6 +228,7 @@ class UiSettings:
     Attributes:
         theme: Theme id (folder name under resources/themes).
         voltage_step / current_step: Selected front-panel step sizes.
+        last_manual_voltage / last_manual_current: Saved manual setpoints or None.
         window_geometry: Saved window position/size (None = centered default).
         last_sequence_file: Last opened sequence file (relative path).
     """
@@ -238,6 +239,9 @@ class UiSettings:
     voltage_step: float
     # Current step size.
     current_step: float
+    # Last manually chosen setpoints, or None before first exit.
+    last_manual_voltage: Optional[float]
+    last_manual_current: Optional[float]
     # Saved window geometry or None.
     window_geometry: Optional[Any]
     # Last sequence file.

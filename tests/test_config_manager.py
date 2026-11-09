@@ -102,6 +102,8 @@ def test_missing_keys_are_filled_from_template(app_root):
     assert config.ui.theme == "light"
     # Missing values come from the template.
     assert config.voltage_channel.ps_max == 20.0
+    assert config.ui.last_manual_voltage is None
+    assert config.ui.last_manual_current is None
 
 
 def test_validation_errors(app_root):

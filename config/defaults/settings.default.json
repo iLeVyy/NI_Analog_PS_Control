@@ -61,6 +61,8 @@
     "theme": "dark",
     "voltage_step": 0.1,
     "current_step": 0.1,
+    "last_manual_voltage": null,
+    "last_manual_current": null,
     "window_geometry": null,
     "last_sequence_file": ""
   }

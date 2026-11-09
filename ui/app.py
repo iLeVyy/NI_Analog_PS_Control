@@ -15,6 +15,7 @@ from typing import Optional
 
 # Import the single-shot timer to run start-up actions after the window is shown.
 from PySide6.QtCore import QTimer
+from PySide6.QtGui import QIcon
 # Import the Qt application class.
 from PySide6.QtWidgets import QApplication
 
@@ -47,6 +48,12 @@ def run_gui(ctx: AppContext, service: Optional[DaqService]) -> int:
     app = QApplication.instance() or QApplication(sys.argv)
     # Application name (used by Qt for settings / dialogs).
     app.setApplicationName("PS Control")
+    # Use the same icon for the window and executable.
+    icon_path = ctx.paths.resources_dir / "icons" / "ps_control.ico"
+    if icon_path.is_file():
+        app.setWindowIcon(QIcon(str(icon_path)))
+    else:
+        log.warning("Application icon missing: %s", icon_path)
     # First start = settings.json was just created.
     first_start = ctx.load_result.status == STATUS_CREATED
     # Create the front panel (main window).

@@ -99,6 +99,9 @@ def startup(paths: Optional[AppPaths] = None) -> AppContext:
     Raises:
         StartupError: If the default template or a catalog is unusable.
     """
+    # Start a fresh visual trace before the first startup message.
+    from core.activity_trace import activity_trace
+    activity_trace.clear()
     # Resolve the paths when not given.
     paths = paths or AppPaths.from_environment()
     # Read the version.

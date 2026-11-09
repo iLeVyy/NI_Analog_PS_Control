@@ -177,6 +177,22 @@ def test_run_locks_panel_and_follows_values(setup):
     assert not panel.output_on and panel.test_backend.last_values[V_CH] == 0.0
 
 
+def test_log_remains_usable_during_sequence_and_manual_value_is_retained(setup):
+    """The sequence can update its display without changing the remembered manual value."""
+    panel, window = setup
+    panel.set_target("voltage", 7)
+    load(window, [SequenceStep(200, "ms", 10, None, "set")])
+    assert window.start_run()
+    log = panel.open_log()
+    assert log.isVisible() and not log.isModal()
+    finish(window)
+    log.refresh()
+    assert "Sequence" in log.entries.toPlainText()
+    assert "Seq timing" in log.entries.toPlainText()
+    panel.close()
+    assert panel.test_ctx.manager.load().config.ui.last_manual_voltage == 7
+
+
 def test_output_off_button_stops_sequence(setup):
     """The front-panel Output OFF button stops a running sequence."""
     # Unpack.

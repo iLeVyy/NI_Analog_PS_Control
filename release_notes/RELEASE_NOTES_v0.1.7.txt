@@ -1,0 +1,27 @@
+PS Control - Release Notes
+==========================
+Version : 0.1.7
+Date    : 2026-11-09
+Scope   : Visual activity trace, manual setpoints and windowless executable
+
+CHANGED
+-------
+- Replaced the main-panel Exit button with Log; close the main window using
+  its normal window close control.
+- Added a nonmodal, in-memory activity trace holding the newest 50 entries.
+  Existing daily file logging is unchanged.
+- Saved the most recent manually selected voltage and current on normal
+  close; restored them at the next start with output OFF. Invalid or
+  out-of-range saved values use the channel minimum.
+- Built the executable without a console and added a circular power-supply
+  icon. Startup errors are shown in a dialog; source console mode remains.
+- Updated the project plan, user guide and developer handoff.
+
+VALIDATION
+----------
+- Full automated test suite: 175 passed.
+- Standalone build succeeded. Verified Windows GUI subsystem, embedded icon,
+  OriginalFilename = PS_Control.exe and FileVersion = 0.1.7.0.
+- In an isolated package copy, the simulated GUI started and shut down
+  normally and restored and resaved both manual setpoints.
+- Clean-target deployment and real NI hardware acceptance remain outstanding.

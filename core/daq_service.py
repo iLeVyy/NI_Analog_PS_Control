@@ -43,6 +43,7 @@ from core.daq_backend import (DaqBackend, DaqBackendError, DeviceInfo, DriverInf
 from core.config_manager import channel_scale, validate_config
 # Import the module logger factory.
 from core.logger import get_logger
+from core.activity_trace import activity_trace
 # Import the configuration data classes.
 from core.models import AppConfig, ChannelConfig
 # Import the scale type.
@@ -387,6 +388,22 @@ class DaqService:
             kind (str): EVT_* constant.
             **data: Event details.
         """
+        # Record DAQ activity separately from the persistent file log.
+        if kind == EVT_SCAN:
+            activity_trace.add(f"DAQ scan: {len(data['devices'])} device(s)")
+        elif kind == EVT_CONFIGURED:
+            activity_trace.add(f"DAQ configure: {'ready' if data['ok'] else 'failed'}; "
+                               f"errors={data['errors']}; warnings={data['warnings']}")
+        elif kind == EVT_WRITTEN:
+            activity_trace.add(f"DAQ write: {data['quantity']} {data['ps']:g} PS units, {data['ao']:g} V AO")
+        elif kind == EVT_OUTPUT:
+            activity_trace.add(f"Output {'ON' if data['on'] else 'OFF'} ({data['reason']})")
+        elif kind == EVT_SAFE_STATE:
+            activity_trace.add(f"Safe state applied ({data['reason']})")
+        elif kind == EVT_ERROR:
+            activity_trace.add(f"DAQ error: {data['message']}")
+        elif kind == EVT_CLOSED:
+            activity_trace.add("DAQ service closed")
         # Build the event.
         event = DaqEvent(kind, data)
         # Copy the listener list under the lock.

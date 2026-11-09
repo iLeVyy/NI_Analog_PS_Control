@@ -1,6 +1,6 @@
 PS Control - User Guide (Project Overview)
 ==========================================
-Version : 0.1.6
+Version : 0.1.7
 Date    : 2026-11-09
 
 1. WHAT IS PS CONTROL?
@@ -15,7 +15,7 @@ Planned functions (see docs/Project_Plan.md):
   - Settings window: scan NI devices, assign AO channels, set ranges and scaling
   - Sequence window: time-based voltage/current profiles with repeat
 
-2. CURRENT STATUS (v0.1.6)
+2. CURRENT STATUS (v0.1.7)
 --------------------------
 Phases 1-5 - all functions of version 1.0 are available: front panel,
 Settings window and Sequence window. Phase 6 (final look, Windows build,
@@ -30,7 +30,8 @@ automatically ("Auto" backend) and an orange SIMULATION label is shown.
 To always use the simulation, start with --simulate. To never use it,
 select "NI-DAQmx (real hardware)" as backend in the Settings window.
 
-Console check (no window): run_console.bat or python main.py --console.
+Console check from source (no window): run_console.bat or python main.py
+--console. The packaged EXE does not open a console.
 
 3. INSTALLATION (FROM SOURCE)
 -----------------------------
@@ -46,6 +47,7 @@ standalone application is created in build\dist\PS_Control\ with
 PS_Control.exe and its runtime files. Distribute that folder as a unit.
 The executable's Windows file properties show Original filename
 PS_Control.exe and the file version from version.txt.
+The EXE uses a circular power-supply icon and starts without a terminal.
 
 4. FILES AND FOLDERS YOU MAY USE
 --------------------------------
@@ -68,7 +70,7 @@ PS_Control.exe and the file version from version.txt.
 
 5. FRONT PANEL (MAIN WINDOW)
 ----------------------------
-Screenshot: docs\screenshots\main_panel_v0.1.3.png
+Screenshot: docs\screenshots\main_panel_v0.1.3.png (historical layout).
 
 All values are in power supply units (V and A). PS Control converts them
 to the AO voltage automatically (see Settings).
@@ -89,6 +91,16 @@ Output
                     Grey and "OFF" = both AO channels hold the safe value.
   While OFF, setpoint changes are only stored. They are written when you
   switch the output ON.
+  The last manually selected voltage and current are saved when the main
+  window closes normally and shown at the next start. Output remains OFF.
+  Sequence-driven values do not replace the saved manual values. If a
+  saved value is outside the configured range, the channel minimum is used.
+
+Activity Log
+  Log               Opens a nonmodal window of recent application activity.
+                    It holds at most 50 entries for the current session;
+                    newer entries replace the oldest. This visual trace is
+                    not saved. Existing daily file logging is unchanged.
 
 Slew-rate limit (Settings > Safety)
   Off (default)     Changes jump to the new value.
@@ -200,9 +212,10 @@ Messages (below the form)
                     the new ranges; the output is switched OFF because the
                     AO channels are set up again.
   Sequence          Opens the Sequence window.
-  Exit              Closes PS Control. If the output is ON you are asked
-                    first; a running sequence is stopped. Both AO channels go to the safe value at exit.
-                    Step sizes and window position are remembered.
+  Log               Opens the in-memory activity window (last 50 entries).
+  Window close (X)  Closes PS Control. If output is ON you are asked first;
+                    a running sequence is stopped and exit safe values are
+                    applied. Manual setpoints and window preferences are saved.
   Output ON /       Switches the output ON (setpoints are written) or OFF
   Output OFF        (safe value). The text shows the next action.
                     While a sequence runs, Output OFF stops the sequence

@@ -227,7 +227,7 @@ PS_Control/
 | Voltage section (left) | Large 7-segment setpoint display (V), rotary knob, numeric entry, ▲/▼ step buttons, step-size selector (e.g., 0.01 / 0.1 / 1 V), max range label |
 | Current section (right) | Same as voltage section, in A |
 | Output section | Large Output ON/OFF button with LED indicator |
-| Toolbar | ⚙ Settings, Sequence (enabled in Phase 5), Exit |
+| Toolbar | ⚙ Settings, Sequence, Log |
 | Status bar | Device/channel names, actual AO voltage sent (V and I channel), sequence state, last message (warning / error colored) |
 | Sent value | Per section: PS value written last (differs from the setpoint during a ramp) |
 | Reserved area (FE-02) | Layout space reserved below each setpoint display for a future "Measured" value; hidden in v1.0 |
@@ -249,7 +249,13 @@ PS_Control/
 - Controls are locked while a sequence is running; the displays follow the sequence values.
 - Knob: one position = one step; Page Up/Down = 1/20 of the range; notches hidden for very fine knobs (> 400 positions).
 - Start-up: AO channels are set up automatically; first start opens Settings; missing device offers Settings (9.3).
-- Exit asks for confirmation while the output is ON; theme, step sizes and window geometry are saved on exit.
+- Closing the window asks for confirmation while output is ON. On normal close,
+  the last manual voltage and current setpoints and window preferences are
+  saved. Startup restores valid manual setpoints with output OFF; invalid or
+  out-of-range saved values use the channel minimum. Sequence values do not
+  replace the last manual values.
+- Log opens a nonmodal, in-memory activity view retaining the latest 50
+  bounded entries. It does not write additional trace entries to disk.
 
 ---
 
@@ -337,7 +343,7 @@ $$PS = \frac{AO - \text{offset}}{\text{slope}}$$
 | sequence | min_step_duration_ms (default 50), timing_mode (`"software"` in v1.0), ramp_interval_ms (50), spin_wait_ms (2), new_step_duration (1.0), status_poll_ms (100) |
 | daq | backend (`auto` / `nidaqmx` / `simulation`, default `auto`), min_driver_version (`""` = no check), write_timeout_s (default 2.0) |
 | logging | retention_days (default 30), level (default INFO) |
-| ui | theme, voltage_step, current_step, window_geometry, last_sequence_file |
+| ui | theme, voltage_step, current_step, last_manual_voltage, last_manual_current, window_geometry, last_sequence_file |
 
 ### 9.2 Illustrative Structure
 
@@ -545,8 +551,8 @@ Other execution rules:
 | Mode | Standalone (folder) – recommended over onefile |
 | Plugin | PySide6 plugin enabled |
 | Included data | `ui/`, `resources/`, default `config/` template |
-| Console | Disabled for release, enabled for debug build |
-| Icon / version info | Windows icon (pending); `OriginalFilename` is `PS_Control.exe` and `FileVersion` comes from `version.txt` |
+| Console | Disabled in the packaged EXE; source console mode remains available |
+| Icon / version info | Circular power-supply icon; `OriginalFilename` is `PS_Control.exe` and `FileVersion` comes from `version.txt` |
 | Compiler | MSVC (Visual Studio Build Tools) preferred; MinGW64 as alternative |
 | Script | Root-level `build_nuitka.bat` |
 | Output | `build/dist/PS_Control/PS_Control.exe` and its standalone runtime files |

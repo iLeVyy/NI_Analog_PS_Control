@@ -13,10 +13,13 @@ LabVIEW analogy:
 
 # Import the standard logging framework.
 import logging
+import sys
 # Import date tools to build the file name and calculate the retention limit.
 from datetime import datetime, timedelta
 # Import Path for file handling.
 from pathlib import Path
+
+from core.activity_trace import ActivityTraceHandler
 
 # Name of the application-wide logger; every module uses get_logger() with this root name.
 LOGGER_NAME = "ps_control"
@@ -86,7 +89,8 @@ def setup_logging(logs_dir: Path, level: str = "INFO", retention_days: int = 30)
     # Get the application root logger.
     logger = logging.getLogger(LOGGER_NAME)
     # Convert the level text to a logging constant; fall back to INFO if unknown.
-    logger.setLevel(getattr(logging, str(level).upper(), logging.INFO))
+    file_level = getattr(logging, str(level).upper(), logging.INFO)
+    logger.setLevel(min(file_level, logging.INFO))
     # Remove handlers from a previous setup so lines are not written twice.
     for handler in list(logger.handlers):
         # Close the old handler to release the file.
@@ -97,16 +101,23 @@ def setup_logging(logs_dir: Path, level: str = "INFO", retention_days: int = 30)
     formatter = logging.Formatter(LOG_FORMAT)
     # Create a handler that appends to today's file in UTF-8.
     file_handler = logging.FileHandler(log_file, encoding="utf-8")
+    file_handler.setLevel(file_level)
     # Apply the line format to the file handler.
     file_handler.setFormatter(formatter)
     # Attach the file handler.
     logger.addHandler(file_handler)
     # Create a handler that prints to the console (useful in development / debug build).
-    console_handler = logging.StreamHandler()
-    # Apply the same line format to the console handler.
-    console_handler.setFormatter(formatter)
-    # Attach the console handler.
-    logger.addHandler(console_handler)
+    if sys.stderr is not None:
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(file_level)
+        # Apply the same line format to the console handler.
+        console_handler.setFormatter(formatter)
+        # Attach the console handler.
+        logger.addHandler(console_handler)
+    # Copy existing log messages into the bounded visual trace.
+    trace_handler = ActivityTraceHandler()
+    trace_handler.setLevel(logging.INFO)
+    logger.addHandler(trace_handler)
     # Do not pass messages up to Python's global root logger (avoids duplicates).
     logger.propagate = False
     # Delete log files older than the retention period.

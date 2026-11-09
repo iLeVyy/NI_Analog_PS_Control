@@ -32,6 +32,20 @@ from core.config_manager import channel_scale
 from core.logger import get_logger
 
 
+def _windowless_build() -> bool:
+    """Return whether this is a packaged Windows GUI build."""
+    return sys.platform == "win32" and ("__compiled__" in globals() or getattr(sys, "frozen", False))
+
+
+def _report_startup_error(message: str) -> None:
+    """Report a startup failure without depending on a console or Qt."""
+    if _windowless_build():
+        import ctypes
+        ctypes.windll.user32.MessageBoxW(None, message, "PS Control - startup error", 0x10)
+    else:
+        print(f"Cannot start: {message}")
+
+
 def print_channel(name: str, channel) -> None:
     """
     Print one channel summary line to the console.
@@ -150,6 +164,8 @@ def run_gui_mode(ctx: AppContext, force_simulation: bool) -> int:
         from ui.app import run_gui
     # PySide6 not installed.
     except ImportError as exc:
+        if _windowless_build():
+            raise RuntimeError(f"GUI is not available: {exc}") from exc
         # Log and explain.
         log.error("GUI not available (%s) - running the console check instead", exc)
         # Console fallback.
@@ -185,8 +201,8 @@ def main() -> int:
         ctx = startup()
     # Broken installation.
     except StartupError as exc:
-        # Print the reason.
-        print(f"Cannot start: {exc}")
+        # Show the reason even when the executable has no console.
+        _report_startup_error(str(exc))
         # Error exit code.
         return 1
     # Console mode.
@@ -205,5 +221,13 @@ def main() -> int:
 
 # Run main() only when this file is started directly (not when imported).
 if __name__ == "__main__":
-    # Pass the exit code to the operating system.
+    if _windowless_build():
+        try:
+            exit_code = main()
+        except Exception as exc:
+            get_logger("main").exception("Application failed: %s", exc)
+            _report_startup_error(f"PS Control could not start or continue:\n{exc}\n\n"
+                                  "See the application log for details.")
+            exit_code = 1
+        sys.exit(exit_code)
     sys.exit(main())

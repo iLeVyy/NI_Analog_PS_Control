@@ -32,6 +32,7 @@ LabVIEW analogy:
 import copy
 # Import html to escape message text.
 import html
+import math
 # Import time for the ramp interval measurement.
 import time
 # Import Future for type hints.
@@ -46,6 +47,7 @@ from PySide6.QtWidgets import QApplication, QLCDNumber, QMainWindow, QMessageBox
 
 # Import the application context.
 from core.bootstrap import AppContext
+from core.activity_trace import activity_trace
 # Import the front-panel logic.
 from core.front_panel import ChannelControl, SlewRamp
 # Import the service and its constants.
@@ -57,6 +59,7 @@ from core.logger import get_logger
 from ui.daq_bridge import DaqBridge
 # Import the widget specification.
 from ui.main_panel_widgets import SECTION_PREFIXES, all_required_widgets
+from ui.log_window import LogWindow
 # Import the Sequence window.
 from ui.sequence_window import SequenceWindow
 # Import the Settings window.
@@ -97,6 +100,8 @@ class MainPanel(QMainWindow):
         self._bridge = DaqBridge(service, self)
         # Section states per quantity (filled by apply_config()).
         self.controls: Dict[str, ChannelControl] = {}
+        # Manual setpoints are independent of values displayed during sequences.
+        self._manual_targets: Dict[str, float] = {}
         # Ramps per quantity.
         self.ramps: Dict[str, SlewRamp] = {}
         # Last AO volts written per quantity.
@@ -111,6 +116,7 @@ class MainPanel(QMainWindow):
         self.settings_dialog: Optional[SettingsWindow] = None
         # Sequence window (created on first use, then reused).
         self.sequence_window: Optional[SequenceWindow] = None
+        self.log_window: Optional[LogWindow] = None
         # True while a sequence runs.
         self.sequence_running = False
         # Time of the last ramp step (seconds, monotonic clock).
@@ -181,8 +187,8 @@ class MainPanel(QMainWindow):
         self.w["btnSettings"].clicked.connect(lambda: self.open_settings())
         # Sequence window.
         self.w["btnSequence"].clicked.connect(lambda: self.open_sequence())
-        # Exit.
-        self.w["btnExit"].clicked.connect(self.close)
+        # Activity log.
+        self.w["btnLog"].clicked.connect(self.open_log)
         # Output button.
         self.w["btnOutput"].clicked.connect(self.toggle_output)
         # Ramp timer.
@@ -248,12 +254,23 @@ class MainPanel(QMainWindow):
         # Channel settings and preferred steps per quantity.
         sources = {VOLTAGE: (config.voltage_channel, config.ui.voltage_step),
                    CURRENT: (config.current_channel, config.ui.current_step)}
+        saved_manual = {VOLTAGE: config.ui.last_manual_voltage,
+                        CURRENT: config.ui.last_manual_current}
         # Rates per quantity.
         rates = {VOLTAGE: config.safety.slew_rate_voltage, CURRENT: config.safety.slew_rate_current}
         # Build both sections.
         for quantity, (channel, step) in sources.items():
-            # Keep the previous setpoint (default: range minimum).
-            previous = self.controls[quantity].target if quantity in self.controls else channel.ps_min
+            # Invalid, missing or out-of-range manual values use the channel minimum.
+            manual = self._manual_targets.get(quantity, saved_manual[quantity])
+            if (isinstance(manual, bool) or not isinstance(manual, (int, float))
+                    or not channel.ps_min <= manual <= channel.ps_max or not math.isfinite(manual)):
+                if manual is not None:
+                    _log.warning("Invalid saved manual %s setpoint %r; using range minimum %g",
+                                 quantity, manual, channel.ps_min)
+                manual = channel.ps_min
+            self._manual_targets[quantity] = float(manual)
+            # Preserve the displayed target after Settings saves.
+            previous = self.controls[quantity].target if quantity in self.controls else manual
             # New section state.
             self.controls[quantity] = ChannelControl.from_config(quantity, channel, step_items, step, previous)
             # Keep an existing ramp position, update its rate.
@@ -431,6 +448,8 @@ class MainPanel(QMainWindow):
             text (str): Message.
             level (str): "info", "warning" or "error" (color from the theme).
         """
+        # Status messages are visible in the session trace without creating a file log.
+        activity_trace.add(f"{level.upper()} | {text}")
         # Color per level.
         color = {"error": self._colors.get("error", "#EB5757"),
                  "warning": self._colors.get("warning", "#F2994A")}.get(level)
@@ -444,6 +463,15 @@ class MainPanel(QMainWindow):
             _log.log(40 if level == "error" else 30, text)
 
     # ------------------------------------------------------------------ start-up / settings
+
+    def open_log(self) -> LogWindow:
+        """Open or focus the nonmodal session activity log."""
+        if self.log_window is None:
+            self.log_window = LogWindow(self)
+        self.log_window.show()
+        self.log_window.raise_()
+        self.log_window.activateWindow()
+        return self.log_window
 
     def start(self) -> None:
         """Start-up actions after the window is shown: set up the AO channels, open Settings if needed."""
@@ -519,6 +547,7 @@ class MainPanel(QMainWindow):
         Returns:
             SettingsWindow: The open dialog.
         """
+        activity_trace.add("Settings opened")
         # Bring an already open dialog to the front.
         if self.settings_dialog is not None and self.settings_dialog.isVisible():
             # Activate it.
@@ -549,6 +578,7 @@ class MainPanel(QMainWindow):
         Returns:
             SequenceWindow: The window.
         """
+        activity_trace.add("Sequence window opened")
         # Create on first use.
         if self.sequence_window is None:
             # New window with this panel as parent.
@@ -685,6 +715,8 @@ class MainPanel(QMainWindow):
         """
         # Store the clamped value.
         target = self.controls[quantity].set_target(value)
+        self._manual_targets[quantity] = target
+        activity_trace.add(f"Manual {quantity} setpoint: {target:g} {self.controls[quantity].unit}")
         # Show it.
         self._show_target(quantity)
         # Nothing to send without set-up channels.
@@ -954,19 +986,23 @@ class MainPanel(QMainWindow):
     # ------------------------------------------------------------------ closing
 
     def _save_preferences(self) -> None:
-        """Save front-panel preferences and window geometry to settings.json."""
+        """Save manual setpoints and window preferences to settings.json."""
         # Window rectangle.
         geometry = self.geometry()
         # Store as a JSON list.
         self._ctx.config.ui.window_geometry = [geometry.x(), geometry.y(), geometry.width(), geometry.height()]
+        self._ctx.config.ui.last_manual_voltage = self._manual_targets[VOLTAGE]
+        self._ctx.config.ui.last_manual_current = self._manual_targets[CURRENT]
         # Save the active configuration.
         try:
             # Write the file.
             self._ctx.manager.save(self._ctx.config)
-        # Disk problem: log only.
+        # A failed preference save must be visible even without a console.
         except OSError as exc:
-            # Log line.
             _log.error("Preferences not saved: %s", exc)
+            QMessageBox.warning(self, "Preferences not saved",
+                                f"Could not save the manual setpoints and window preferences:\n{exc}\n\n"
+                                "The application will close and apply the exit safe value.")
 
     def confirm_exit(self) -> bool:
         """

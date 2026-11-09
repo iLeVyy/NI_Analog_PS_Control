@@ -67,12 +67,12 @@
             </widget>
           </item>
           <item>
-            <widget class="QPushButton" name="btnExit">
+            <widget class="QPushButton" name="btnLog">
               <property name="text">
-                <string>Exit</string>
+                <string>Log</string>
               </property>
               <property name="toolTip">
-                <string>Close PS Control (outputs go to the exit safe value).</string>
+                <string>Show recent activity for this session.</string>
               </property>
             </widget>
           </item>

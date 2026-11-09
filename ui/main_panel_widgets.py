@@ -22,8 +22,8 @@ GENERAL_WIDGETS = {
     "btnSettings": "QPushButton",
     # Sequence button (Phase 5).
     "btnSequence": "QPushButton",
-    # Exit button.
-    "btnExit": "QPushButton",
+    # Activity log button.
+    "btnLog": "QPushButton",
     # Output ON/OFF button.
     "btnOutput": "QPushButton",
     # Output LED.

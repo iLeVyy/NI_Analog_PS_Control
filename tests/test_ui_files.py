@@ -77,6 +77,13 @@ def test_main_panel_ui_has_no_theme_button():
     assert "btnTheme" not in found
 
 
+def test_main_panel_has_log_instead_of_exit():
+    """Log replaces Exit while the normal window close remains available."""
+    found = widgets_in_ui(ROOT / "ui" / "main_panel.ui")
+    assert found["btnLog"] == "QPushButton"
+    assert "btnExit" not in found
+
+
 def test_main_panel_ui_object_names_are_unique():
     """Object names in the front-panel form are unique."""
     # Parse the file.

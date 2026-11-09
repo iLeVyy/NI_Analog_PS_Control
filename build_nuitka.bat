@@ -35,7 +35,7 @@ if errorlevel 1 goto :staging_create_failed
 REM Set the executable filename so Nuitka records PS_Control.exe as OriginalFilename.
 REM Append a fourth component because Windows file versions use up to four numeric parts.
 REM Compile into a staging directory; Nuitka names the inner distribution directory from the entry script.
-".venv\Scripts\python.exe" -m nuitka --standalone --enable-plugin=pyside6 --include-module=ui.app --include-module=core.simulation --include-module=core.nidaqmx_backend --include-package=nidaqmx --output-dir="%STAGING_ROOT%" --output-filename=PS_Control.exe --file-version=%APPVER%.0 main.py
+".venv\Scripts\python.exe" -m nuitka --standalone --enable-plugin=pyside6 --include-module=ui.app --include-module=core.simulation --include-module=core.nidaqmx_backend --include-package=nidaqmx --windows-console-mode=disable --windows-icon-from-ico="resources\icons\ps_control.ico" --output-dir="%STAGING_ROOT%" --output-filename=PS_Control.exe --file-version=%APPVER%.0 main.py
 REM Stop if Nuitka compilation failed.
 if errorlevel 1 goto :compile_failed
 REM Select the distribution directory name Nuitka produced for main.py.

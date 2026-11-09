@@ -1,0 +1,68 @@
+PS Control - Release Notes
+==========================
+Version : 0.1.1
+Date    : 2026-11-05
+Scope   : Phase 2 - DAQ Service (Project_Plan.md v1.1, sections 12, 13, 17)
+
+NEW
+---
+- core/daq_service.py: DAQ service, the only module that controls the AO
+  hardware.
+  * One worker thread with a command queue; public methods are thread-safe
+    and return a Future (scan, configure, set_setpoint, set_output,
+    apply_safe_state, close).
+  * Events to listeners: scan, configured, output, written, safe_state,
+    error, closed.
+  * Configure validates the settings and the scanned hardware (device
+    present, channel on device, used span supported by a device range),
+    opens one on-demand AO task per channel with task min/max = used span,
+    and writes the start-up safe value with Output OFF.
+  * Setpoints in power supply units (V / A), clamped to the PS range,
+    converted only through core/scaling; written immediately while Output
+    is ON, stored only while OFF.
+  * Output ON writes both setpoints; Output OFF writes the safe value.
+  * Any write error: error event, safe state (best effort), Output OFF.
+  * close(): writes safe_value_exit, closes all tasks, stops the thread.
+- core/daq_backend.py: backend interface (DaqBackend), DeviceInfo,
+  DriverInfo, backend factory, minimum driver version check.
+- core/nidaqmx_backend.py: NI-DAQmx backend (driver version, device scan
+  with AO channels and AO ranges, on-demand AO task, write, close).
+  The nidaqmx package is imported only when needed.
+- core/simulation.py: simulation backend with fault injection helpers for
+  tests (failed writes, unplugged device).
+- Config-driven data:
+  * config/presets/daq_backends.json - available backends and the "auto"
+    order (nidaqmx first, then simulation).
+  * config/simulation/devices.json - simulated devices (NI 9263 with 4 AO,
+    USB-6001 with 2 AO, both +-10 V).
+- settings.json: new group "daq" (backend = auto, min_driver_version = "",
+  write_timeout_s = 2.0). Existing settings files get the group
+  automatically from the default template.
+- main.py: creates the backend, starts the DAQ service, scans, tries to
+  configure, prints devices and result, closes the service.
+  New option: --simulate (forces the simulation backend).
+- 25 new unit tests (54 in total, all passing), including the NI-DAQmx
+  backend with a fake driver module.
+
+CHANGED
+-------
+- Catalog objects keep the complete file content (Catalog.raw).
+- Config validation also checks daq.write_timeout_s > 0.
+- build/build_nuitka.bat includes the backend modules and copies
+  config/simulation.
+- Safe values are documented as power supply units (converted with the
+  channel scale, clamped to the AO span).
+
+REMOVED
+-------
+- None.
+
+KNOWN LIMITATIONS
+-----------------
+- NI-DAQmx backend not yet tested on real hardware (tested with a fake
+  driver module only).
+- In "auto" mode the simulation is used when NI-DAQmx is missing; the UI
+  (Phase 3/4) must show this clearly. Set daq.backend = "nidaqmx" on test
+  benches to prevent an unnoticed fallback.
+- Slew-rate limiting is not part of the service; it is implemented in the
+  front panel (Phase 4, D-07).

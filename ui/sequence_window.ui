@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+  <class>SequenceForm</class>
+  <widget class="QWidget" name="SequenceForm">
+    <property name="windowTitle">
+      <string>PS Control - Sequence</string>
+    </property>
+    <property name="geometry">
+      <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>1000</width>
+        <height>720</height>
+      </rect>
+    </property>
+    <layout class="QVBoxLayout" name="rootLayout">
+      <item>
+        <layout class="QHBoxLayout" name="fileLayout">
+          <item>
+            <widget class="QPushButton" name="btnNew">
+              <property name="text">
+                <string>New</string>
+              </property>
+              <property name="toolTip">
+                <string>Start a new sequence.</string>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <widget class="QPushButton" name="btnLoad">
+              <property name="text">
+                <string>Load…</string>
+              </property>
+              <property name="toolTip">
+                <string>Open a sequence file from the sequences folder.</string>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <widget class="QPushButton" name="btnSave">
+              <property name="text">
+                <string>Save</string>
+              </property>
+              <property name="toolTip">
+                <string>Save the sequence to its file (asks for a name the first time).</string>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <widget class="QPushButton" name="btnSaveAs">
+              <property name="text">
+                <string>Save As…</string>
+              </property>
+              <property name="toolTip">
+                <string>Save the sequence under a new file name.</string>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <widget class="QLabel" name="lblFile">
+              <property name="text">
+                <string>(not saved)</string>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <spacer name="fileSpacer">
+              <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+                <size>
+                  <width>20</width>
+                  <height>20</height>
+                </size>
+              </property>
+            </spacer>
+          </item>
+          <item>
+            <widget class="QLabel" name="lblSimulation">
+              <property name="text">
+                <string>SIMULATION</string>
+              </property>
+              <property name="toolTip">
+                <string>No real hardware is controlled - simulated devices are used.</string>
+              </property>
+            </widget>
+          </item>
+        </layout>
+      </item>
+      <item>
+        <widget class="QGroupBox" name="gbOptions">
+          <property name="title">
+            <string>Sequence</string>
+          </property>
+          <layout class="QGridLayout" name="optionsLayout">
+            <item row="0" column="0">
+              <widget class="QLabel" name="lblName">
+                <property name="text">
+                  <string>Name</string>
+                </property>
+              </widget>
+            </item>
+            <item row="0" column="1">
+              <widget class="QLineEdit" name="leName">
+                <property name="toolTip">
+                  <string>Name of the sequence (default: file name).</string>
+                </property>
+              </widget>
+            </item>
+            <item row="0" column="2">
+              <widget class="QLabel" name="lblDescription">
+                <property name="text">
+                  <string>Description</string>
+                </property>
+              </widget>
+            </item>
+            <item row="0" column="3" colspan="3">
+              <widget class="QLineEdit" name="leDescription">
+                <property name="toolTip">
+                  <string>Optional description.</string>
+                </property>
+              </widget>
+            </item>
+            <item row="1" column="0">
+              <widget class="QLabel" name="lblEndStateCaption">
+                <property name="text">
+                  <string>End state</string>
+                </property>
+              </widget>
+            </item>
+            <item row="1" column="1">
+              <widget class="QComboBox" name="cbEndState">
+                <property name="toolTip">
+                  <string>What happens after the last step. Stop button and errors always switch the output OFF.</string>
+                </property>
+              </widget>
+            </item>
+            <item row="1" column="2">
+              <widget class="QLabel" name="lblRepeatCaption">
+                <property name="text">
+                  <string>Repeat</string>
+                </property>
+              </widget>
+            </item>
+            <item row="1" column="3">
+              <widget class="QSpinBox" name="sbRepeat">
+                <property name="toolTip">
+                  <string>Number of runs of the whole sequence. 0 = until stopped.</string>
+                </property>
+              </widget>
+            </item>
+            <item row="1" column="4">
+              <widget class="QCheckBox" name="chkAoPreview">
+                <property name="text">
+                  <string>Show AO preview</string>
+                </property>
+                <property name="toolTip">
+                  <string>Show the AO voltages that will be sent for each row (read-only).</string>
+                </property>
+              </widget>
+            </item>
+            <item row="2" column="0" colspan="6">
+              <widget class="QLabel" name="lblEndWarning">
+                <property name="text">
+                  <string />
+                </property>
+              </widget>
+            </item>
+          </layout>
+        </widget>
+      </item>
+      <item>
+        <widget class="QTableWidget" name="twSteps">
+          <property name="toolTip">
+            <string>Sequence steps. Values in power supply units (V, A).</string>
+          </property>
+        </widget>
+      </item>
+      <item>
+        <layout class="QHBoxLayout" name="rowToolsLayout">
+          <item>
+            <widget class="QPushButton" name="btnAddRow">
+              <property name="text">
+                <string>Add</string>
+              </property>
+              <property name="toolTip">
+                <string>Add a row at the end (copy of the last row).</string>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <widget class="QPushButton" name="btnInsertRow">
+              <property name="text">
+                <string>Insert</string>
+              </property>
+              <property name="toolTip">
+                <string>Insert a row above the selected row.</string>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <widget class="QPushButton" name="btnDeleteRow">
+              <property name="text">
+                <string>Delete</string>
+              </property>
+              <property name="toolTip">
+                <string>Delete the selected row.</string>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <widget class="QPushButton" name="btnDuplicateRow">
+              <property name="text">
+                <string>Duplicate</string>
+              </property>
+              <property name="toolTip">
+                <string>Copy the selected row below it.</string>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <widget class="QPushButton" name="btnMoveUp">
+              <property name="text">
+                <string>Move ▲</string>
+              </property>
+              <property name="toolTip">
+                <string>Move the selected row up.</string>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <widget class="QPushButton" name="btnMoveDown">
+              <property name="text">
+                <string>Move ▼</string>
+              </property>
+              <property name="toolTip">
+                <string>Move the selected row down.</string>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <spacer name="rowToolsSpacer">
+              <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+                <size>
+                  <width>20</width>
+                  <height>20</height>
+                </size>
+              </property>
+            </spacer>
+          </item>
+        </layout>
+      </item>
+      <item>
+        <widget class="QLabel" name="lblMessages">
+          <property name="text">
+            <string />
+          </property>
+          <property name="wordWrap">
+            <bool>true</bool>
+          </property>
+        </widget>
+      </item>
+      <item>
+        <widget class="QGroupBox" name="gbRun">
+          <property name="title">
+            <string>Run</string>
+          </property>
+          <layout class="QGridLayout" name="runLayout">
+            <item row="0" column="0" rowspan="3">
+              <layout class="QVBoxLayout" name="runButtonsLayout">
+                <item>
+                  <widget class="QPushButton" name="btnStart">
+                    <property name="text">
+                      <string>▶ Start</string>
+                    </property>
+                    <property name="toolTip">
+                      <string>Check the sequence and start it. The output is switched ON.</string>
+                    </property>
+                  </widget>
+                </item>
+                <item>
+                  <widget class="QPushButton" name="btnPause">
+                    <property name="text">
+                      <string>❚❚ Pause</string>
+                    </property>
+                    <property name="toolTip">
+                      <string>Pause: values are held, time stands still. Press again to resume.</string>
+                    </property>
+                  </widget>
+                </item>
+                <item>
+                  <widget class="QPushButton" name="btnStop">
+                    <property name="text">
+                      <string>■ Stop</string>
+                    </property>
+                    <property name="toolTip">
+                      <string>Stop the sequence: output OFF + safe value.</string>
+                    </property>
+                  </widget>
+                </item>
+              </layout>
+            </item>
+            <item row="0" column="1">
+              <widget class="QLabel" name="lblRunState">
+                <property name="text">
+                  <string>Idle</string>
+                </property>
+              </widget>
+            </item>
+            <item row="0" column="2">
+              <widget class="QLabel" name="lblCycle">
+                <property name="text">
+                  <string />
+                </property>
+              </widget>
+            </item>
+            <item row="1" column="1">
+              <widget class="QLabel" name="lblStep">
+                <property name="text">
+                  <string />
+                </property>
+              </widget>
+            </item>
+            <item row="1" column="2">
+              <widget class="QLabel" name="lblTime">
+                <property name="text">
+                  <string />
+                </property>
+              </widget>
+            </item>
+            <item row="2" column="1" colspan="2">
+              <widget class="QProgressBar" name="pbProgress">
+                <property name="value">
+                  <number>0</number>
+                </property>
+              </widget>
+            </item>
+            <item row="3" column="1" colspan="2">
+              <widget class="QLabel" name="lblTiming">
+                <property name="text">
+                  <string />
+                </property>
+              </widget>
+            </item>
+          </layout>
+        </widget>
+      </item>
+    </layout>
+  </widget>
+  <resources />
+  <connections />
+</ui>

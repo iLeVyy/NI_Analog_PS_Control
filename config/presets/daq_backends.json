@@ -1,0 +1,10 @@
+{
+  "catalog": "daq_backends",
+  "description": "DAQ backends the DAQ service can use. module/class are loaded at run time. 'auto' in settings.json tries the items in 'auto_order' and uses the first one whose driver check passes.",
+  "default": "auto",
+  "auto_order": ["nidaqmx", "simulation"],
+  "items": [
+    { "id": "nidaqmx",    "label": "NI-DAQmx (real hardware)", "module": "core.nidaqmx_backend", "class": "NiDaqmxBackend",   "simulated": false },
+    { "id": "simulation", "label": "Simulation (no hardware)", "module": "core.simulation",     "class": "SimulatedBackend", "simulated": true }
+  ]
+}

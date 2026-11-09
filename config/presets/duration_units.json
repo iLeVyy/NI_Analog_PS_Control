@@ -1,0 +1,10 @@
+{
+  "catalog": "duration_units",
+  "description": "Duration units for sequence steps. factor_s converts one unit to seconds.",
+  "default": "s",
+  "items": [
+    { "id": "ms",  "label": "ms",  "factor_s": 0.001 },
+    { "id": "s",   "label": "s",   "factor_s": 1.0 },
+    { "id": "min", "label": "min", "factor_s": 60.0 }
+  ]
+}

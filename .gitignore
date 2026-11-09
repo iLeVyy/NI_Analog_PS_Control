@@ -1,0 +1,15 @@
+# Virtual environment (recreate with setup_venv.bat).
+.venv/
+# Python cache files.
+__pycache__/
+*.pyc
+# pytest cache.
+.pytest_cache/
+# User settings and backups are created at run time - do not commit.
+config/settings.json
+config/settings.json.bak
+config/*.tmp
+# Run-time log files.
+logs/*.log
+# Nuitka build output.
+build/dist/

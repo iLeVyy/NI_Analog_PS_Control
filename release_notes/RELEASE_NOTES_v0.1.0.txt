@@ -1,0 +1,48 @@
+PS Control - Release Notes
+==========================
+Version : 0.1.0
+Date    : 2026-11-05
+Scope   : Phase 1 - Foundation (Project_Plan.md v1.0, section 17)
+
+NEW
+---
+- Project skeleton with the folder structure from Project_Plan.md section 5.
+- core/app_paths.py: resolves the application root in development and in a
+  Nuitka build; all folders relative to the root (NFR-02).
+- core/logger.py: daily log file logs/ps_control_YYYYMMDD.log plus console;
+  level and retention (default 30 days) read from settings.json.
+- core/models.py: typed data classes for every settings.json group.
+- core/catalogs.py: loads all config-driven catalogs from config/presets/*.json
+  and discovers themes from resources/themes/<id>/theme.json.
+- core/config_manager.py: creates, loads, validates, migrates and saves
+  config/settings.json (atomic write); invalid files are backed up as
+  settings.json.bak; missing keys filled from the default template;
+  slope/offset recalculated on every load and save.
+- core/scaling.py: PS units <-> AO volts linear scaling with clamping,
+  non-zero PS min (D-06), span validation against the device range (D-05),
+  scaling preview table.
+- Default settings template config/defaults/settings.default.json with the
+  approved defaults: 0-10 V span, PS min 0, slew limit off, 1 V/s and 5 A/s,
+  50 ms minimum step, software timing.
+- Catalog files: ao_spans, step_sizes, duration_units, end_states,
+  sequence_actions, scaling_preview. Themes: dark, light (stylesheets are
+  placeholders until Phase 6).
+- main.py: console bootstrap that prints a start-up summary (no UI yet).
+- 29 unit tests (pytest), all passing.
+- Scripts: setup_venv.bat, run_app.bat, run_tests.bat,
+  build/build_nuitka.bat (smoke build, not yet verified on a build PC).
+
+CHANGED
+-------
+- None (first release).
+
+REMOVED
+-------
+- None.
+
+KNOWN LIMITATIONS
+-----------------
+- No user interface and no hardware access yet (Phases 2-5).
+- Package versions in requirements.txt are minimum versions; pin them after
+  the first install on the build PC.
+- build_nuitka.bat was not executed in the creation environment.

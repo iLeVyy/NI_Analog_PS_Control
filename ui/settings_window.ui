@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+  <class>SettingsForm</class>
+  <widget class="QWidget" name="SettingsForm">
+    <property name="windowTitle">
+      <string>PS Control - Settings</string>
+    </property>
+    <property name="geometry">
+      <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>980</width>
+        <height>780</height>
+      </rect>
+    </property>
+    <layout class="QVBoxLayout" name="rootLayout">
+      <item>
+        <widget class="QScrollArea" name="scrollArea">
+          <property name="widgetResizable">
+            <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrollContent">
+            <layout class="QVBoxLayout" name="contentLayout">
+              <item>
+                <widget class="QGroupBox" name="gbDaq">
+                  <property name="title">
+                    <string>DAQ hardware</string>
+                  </property>
+                  <layout class="QGridLayout" name="daqLayout">
+                    <item row="0" column="0">
+                      <widget class="QLabel" name="lblBackendCaption">
+                        <property name="text">
+                          <string>Backend (applies at next start)</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="0" column="1">
+                      <widget class="QComboBox" name="cbBackend">
+                        <property name="toolTip">
+                          <string>DAQ backend used at the next start. Auto = NI-DAQmx, or the simulation if NI-DAQmx is not installed.</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="0" column="2">
+                      <widget class="QLabel" name="lblSimulation">
+                        <property name="text">
+                          <string>SIMULATION</string>
+                        </property>
+                        <property name="toolTip">
+                          <string>No real hardware is controlled - simulated devices are used.</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="0" column="3">
+                      <widget class="QPushButton" name="btnScan">
+                        <property name="text">
+                          <string>Scan devices</string>
+                        </property>
+                        <property name="toolTip">
+                          <string>Search all NI devices with analog outputs.</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="1" column="0" colspan="4">
+                      <widget class="QLabel" name="lblBackendInfo">
+                        <property name="text">
+                          <string>-</string>
+                        </property>
+                        <property name="wordWrap">
+                          <bool>true</bool>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="2" column="0" colspan="4">
+                      <widget class="QTableWidget" name="twDevices">
+                        <property name="toolTip">
+                          <string>Devices found by the last scan.</string>
+                        </property>
+                        <property name="maximumSize">
+                          <size>
+                            <width>16777215</width>
+                            <height>150</height>
+                          </size>
+                        </property>
+                      </widget>
+                    </item>
+                  </layout>
+                </widget>
+              </item>
+              <item>
+                <layout class="QHBoxLayout" name="channelsLayout">
+                  <item>
+                    <widget class="QGroupBox" name="v_gbChannel">
+                      <property name="title">
+                        <string>Voltage control</string>
+                      </property>
+                      <layout class="QGridLayout" name="v_channelLayout">
+                        <item row="0" column="0">
+                          <widget class="QLabel" name="v_lblChannel">
+                            <property name="text">
+                              <string>AO channel</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="0" column="1" colspan="2">
+                          <widget class="QComboBox" name="v_cbChannel">
+                            <property name="toolTip">
+                              <string>NI analog output that drives the power supply control input.</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="1" column="0">
+                          <widget class="QLabel" name="v_lblDeviceRange">
+                            <property name="text">
+                              <string>Device AO range</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="1" column="1" colspan="2">
+                          <widget class="QComboBox" name="v_cbDeviceRange">
+                            <property name="toolTip">
+                              <string>Output range supported by the device (read from NI-DAQmx).</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="2" column="0">
+                          <widget class="QLabel" name="v_lblSpan">
+                            <property name="text">
+                              <string>Used AO span</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="2" column="1" colspan="2">
+                          <widget class="QComboBox" name="v_cbSpanPreset">
+                            <property name="toolTip">
+                              <string>Voltage span of the power supply control input. Custom = enter min/max.</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="3" column="0">
+                          <widget class="QLabel" name="v_lblAo">
+                            <property name="text">
+                              <string>AO min / max</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="3" column="1">
+                          <widget class="QDoubleSpinBox" name="v_dsbAoMin">
+                            <property name="toolTip">
+                              <string>Used span minimum (AO volts)</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="3" column="2">
+                          <widget class="QDoubleSpinBox" name="v_dsbAoMax">
+                            <property name="toolTip">
+                              <string>Used span maximum (AO volts)</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="4" column="0">
+                          <widget class="QLabel" name="v_lblPs">
+                            <property name="text">
+                              <string>Power supply min / max</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="4" column="1">
+                          <widget class="QDoubleSpinBox" name="v_dsbPsMin">
+                            <property name="toolTip">
+                              <string>Power supply range minimum (V)</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="4" column="2">
+                          <widget class="QDoubleSpinBox" name="v_dsbPsMax">
+                            <property name="toolTip">
+                              <string>Power supply range maximum (V)</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="5" column="0" colspan="3">
+                          <widget class="QLabel" name="v_lblScale">
+                            <property name="text">
+                              <string>-</string>
+                            </property>
+                            <property name="wordWrap">
+                              <bool>true</bool>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="6" column="0" colspan="3">
+                          <widget class="QTableWidget" name="v_twPreview">
+                            <property name="toolTip">
+                              <string>Scaling preview: power supply value and the AO voltage sent.</string>
+                            </property>
+                          </widget>
+                        </item>
+                      </layout>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QGroupBox" name="i_gbChannel">
+                      <property name="title">
+                        <string>Current control</string>
+                      </property>
+                      <layout class="QGridLayout" name="i_channelLayout">
+                        <item row="0" column="0">
+                          <widget class="QLabel" name="i_lblChannel">
+                            <property name="text">
+                              <string>AO channel</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="0" column="1" colspan="2">
+                          <widget class="QComboBox" name="i_cbChannel">
+                            <property name="toolTip">
+                              <string>NI analog output that drives the power supply control input.</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="1" column="0">
+                          <widget class="QLabel" name="i_lblDeviceRange">
+                            <property name="text">
+                              <string>Device AO range</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="1" column="1" colspan="2">
+                          <widget class="QComboBox" name="i_cbDeviceRange">
+                            <property name="toolTip">
+                              <string>Output range supported by the device (read from NI-DAQmx).</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="2" column="0">
+                          <widget class="QLabel" name="i_lblSpan">
+                            <property name="text">
+                              <string>Used AO span</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="2" column="1" colspan="2">
+                          <widget class="QComboBox" name="i_cbSpanPreset">
+                            <property name="toolTip">
+                              <string>Voltage span of the power supply control input. Custom = enter min/max.</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="3" column="0">
+                          <widget class="QLabel" name="i_lblAo">
+                            <property name="text">
+                              <string>AO min / max</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="3" column="1">
+                          <widget class="QDoubleSpinBox" name="i_dsbAoMin">
+                            <property name="toolTip">
+                              <string>Used span minimum (AO volts)</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="3" column="2">
+                          <widget class="QDoubleSpinBox" name="i_dsbAoMax">
+                            <property name="toolTip">
+                              <string>Used span maximum (AO volts)</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="4" column="0">
+                          <widget class="QLabel" name="i_lblPs">
+                            <property name="text">
+                              <string>Power supply min / max</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="4" column="1">
+                          <widget class="QDoubleSpinBox" name="i_dsbPsMin">
+                            <property name="toolTip">
+                              <string>Power supply range minimum (A)</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="4" column="2">
+                          <widget class="QDoubleSpinBox" name="i_dsbPsMax">
+                            <property name="toolTip">
+                              <string>Power supply range maximum (A)</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="5" column="0" colspan="3">
+                          <widget class="QLabel" name="i_lblScale">
+                            <property name="text">
+                              <string>-</string>
+                            </property>
+                            <property name="wordWrap">
+                              <bool>true</bool>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="6" column="0" colspan="3">
+                          <widget class="QTableWidget" name="i_twPreview">
+                            <property name="toolTip">
+                              <string>Scaling preview: power supply value and the AO voltage sent.</string>
+                            </property>
+                          </widget>
+                        </item>
+                      </layout>
+                    </widget>
+                  </item>
+                </layout>
+              </item>
+              <item>
+                <widget class="QGroupBox" name="gbSafety">
+                  <property name="title">
+                    <string>Safety</string>
+                  </property>
+                  <layout class="QGridLayout" name="safetyLayout">
+                    <item row="0" column="0">
+                      <widget class="QLabel" name="lblSafeStartup">
+                        <property name="text">
+                          <string>Safe value at start / Output OFF / error</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="0" column="1">
+                      <widget class="QDoubleSpinBox" name="dsbSafeStartup">
+                        <property name="toolTip">
+                          <string>Power supply value written to both channels at start-up, Output OFF and on errors.</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="0" column="2">
+                      <widget class="QLabel" name="lblSafeExit">
+                        <property name="text">
+                          <string>Safe value at exit</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="0" column="3">
+                      <widget class="QDoubleSpinBox" name="dsbSafeExit">
+                        <property name="toolTip">
+                          <string>Power supply value written to both channels when the application closes.</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="1" column="0">
+                      <widget class="QCheckBox" name="chkSlewLimit">
+                        <property name="text">
+                          <string>Limit slew rate (front panel)</string>
+                        </property>
+                        <property name="toolTip">
+                          <string>When on, front-panel changes ramp at the rates below instead of jumping.</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="1" column="1">
+                      <widget class="QLabel" name="lblSlewVoltage">
+                        <property name="text">
+                          <string>Voltage rate</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="1" column="2">
+                      <widget class="QDoubleSpinBox" name="dsbSlewVoltage">
+                        <property name="toolTip">
+                          <string>Voltage slew rate in V/s</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="1" column="3">
+                      <widget class="QLabel" name="lblSlewCurrent">
+                        <property name="text">
+                          <string>Current rate</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="1" column="4">
+                      <widget class="QDoubleSpinBox" name="dsbSlewCurrent">
+                        <property name="toolTip">
+                          <string>Current slew rate in A/s</string>
+                        </property>
+                      </widget>
+                    </item>
+                  </layout>
+                </widget>
+              </item>
+            </layout>
+          </widget>
+        </widget>
+      </item>
+      <item>
+        <widget class="QLabel" name="lblMessages">
+          <property name="text">
+            <string />
+          </property>
+          <property name="wordWrap">
+            <bool>true</bool>
+          </property>
+        </widget>
+      </item>
+      <item>
+        <layout class="QHBoxLayout" name="buttonLayout">
+          <item>
+            <widget class="QPushButton" name="btnRestoreDefaults">
+              <property name="text">
+                <string>Restore Defaults</string>
+              </property>
+              <property name="toolTip">
+                <string>Load the default settings into the form (saved only with Save).</string>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <spacer name="buttonSpacer">
+              <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+                <size>
+                  <width>40</width>
+                  <height>20</height>
+                </size>
+              </property>
+            </spacer>
+          </item>
+          <item>
+            <widget class="QPushButton" name="btnCancel">
+              <property name="text">
+                <string>Cancel</string>
+              </property>
+              <property name="toolTip">
+                <string>Close without saving unsaved changes.</string>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <widget class="QPushButton" name="btnSave">
+              <property name="text">
+                <string>Save</string>
+              </property>
+              <property name="toolTip">
+                <string>Check, save to config/settings.json and set up the AO channels.</string>
+              </property>
+            </widget>
+          </item>
+        </layout>
+      </item>
+    </layout>
+  </widget>
+  <resources />
+  <connections />
+</ui>

@@ -1,0 +1,89 @@
+PS Control - Release Notes
+==========================
+Version : 0.1.4
+Date    : 2026-11-05
+Scope   : Phase 5 - Sequence window and engine (Project_Plan.md v1.4, section 10)
+
+NEW
+---
+- Sequence window (front panel button "Sequence"; separate, non-modal
+  window).
+  * File buttons: New, Load..., Save, Save As... (files in the sequences
+    folder, JSON). The file name is shown with "*" for unsaved changes.
+    The last used file is opened automatically next time.
+  * Options: name, description, end state (Output OFF + safe value /
+    Hold last value, with an orange warning for Hold last value), repeat
+    count (0 = until stopped), "Show AO preview".
+  * Step table: duration, unit (ms / s / min), voltage [V], current [A]
+    (empty = unchanged), action (Set / Ramp / Stop). Column titles show the
+    power supply range, e.g. "Voltage [V] (0-20)". Decimal comma accepted.
+  * Optional AO preview columns: AO volts per row ("5" for Set,
+    "5 -> 7.5" for Ramp).
+  * Row tools: Add, Insert, Delete, Duplicate, Move up, Move down.
+  * Live validation: wrong cells colored red (errors) / orange (warnings),
+    messages below the table.
+  * Run: Start, Pause / Resume, Stop. Run monitor: state, cycle
+    ("Cycle 2 / 5" or "/ inf"), step time and remaining, total time and
+    remaining (elapsed only for endless runs), progress bar, timing
+    statistics (step starts, max / average deviation). The running row is
+    highlighted.
+  * Editing is locked while a sequence runs.
+  * Closing the window during a run asks, then stops the sequence.
+- Sequence engine (core/sequence_engine.py) and players
+  (core/sequence_players.py):
+  * Steps: Set = jump and hold; Ramp = linear from the previous value in
+    50 ms steps; Stop = end. Rows after the first Stop are ignored (warning).
+  * Values are power supply units; scaling to AO volts by the DAQ service.
+  * Validation: minimum step 50 ms, voltage required and inside the PS
+    range, current optional and inside the PS range, known unit / action /
+    end state, repeat count >= 0, software timing only.
+  * Software timing with an absolute schedule (no drift over steps or
+    cycles), interruptible coarse sleeps plus a short active wait; 1 ms
+    Windows timer resolution during a run.
+  * Start: first values are stored, then the output is switched ON.
+  * End: normal end -> sequence end state; Stop -> always Output OFF +
+    safe value; errors (write failure, output switched OFF elsewhere) ->
+    Output OFF.
+  * Pause holds the values and stops the time; Resume continues the
+    schedule.
+  * Timing log: planned / actual / deviation for every step start, summary
+    at the end (application log).
+  * Player interface prepared for a future hardware-timed player (FE-01).
+- Front panel:
+  * Sequence button enabled.
+  * While a sequence runs: voltage / current sections and Settings are
+    locked; the displays follow the sequence values; Output OFF stops the
+    sequence.
+  * After the run the front panel shows the last sequence values.
+  * Exit stops a running sequence (after the usual "Output is ON" question).
+- New settings (settings.json, group "sequence"): ramp_interval_ms (50),
+  spin_wait_ms (2), new_step_duration (1.0), status_poll_ms (100).
+  Existing settings files get them automatically.
+- Example sequence: sequences/Example_from_request.json
+  (10 s 10 V, 20 s ramp to 15 V, 100 ms 5 V, Stop).
+- 43 new tests (150 in total): model and file format, validation,
+  schedule, runner with a deterministic test clock (values, ramps, repeat,
+  pause, stop, errors, end states), a real-clock accuracy test, editor
+  logic, .ui file check, and Qt tests of the window and the front-panel
+  link.
+- Screenshots: docs/screenshots/sequence_window_running_v0.1.4.png,
+  docs/screenshots/main_panel_sequence_running_v0.1.4.png.
+
+CHANGED
+-------
+- Front-panel Output button stops a running sequence instead of switching
+  the output directly.
+- build/build_nuitka.bat copies the sequences folder (example file).
+
+REMOVED
+-------
+- None.
+
+KNOWN LIMITATIONS
+-----------------
+- Software timing: typically a few ms deviation per step on Windows (no
+  drift). Measured in the creation environment (Linux): max 0.5-4.5 ms.
+  Please check the timing log on the target PC.
+- Hardware-timed playback (FE-01) and block repetition (FE-03) are not
+  part of v1.0.
+- Theme stylesheets are still placeholders (Phase 6).

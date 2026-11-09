@@ -1,0 +1,13 @@
+{
+  "catalog": "step_sizes",
+  "description": "Front-panel step sizes per quantity. Add or remove items to change the step-size selector.",
+  "default": { "voltage": "v_0_1", "current": "a_0_1" },
+  "items": [
+    { "id": "v_0_01", "quantity": "voltage", "value": 0.01, "label": "0.01 V" },
+    { "id": "v_0_1",  "quantity": "voltage", "value": 0.1,  "label": "0.1 V" },
+    { "id": "v_1",    "quantity": "voltage", "value": 1.0,  "label": "1 V" },
+    { "id": "a_0_01", "quantity": "current", "value": 0.01, "label": "0.01 A" },
+    { "id": "a_0_1",  "quantity": "current", "value": 0.1,  "label": "0.1 A" },
+    { "id": "a_1",    "quantity": "current", "value": 1.0,  "label": "1 A" }
+  ]
+}

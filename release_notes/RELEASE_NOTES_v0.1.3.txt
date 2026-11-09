@@ -1,0 +1,69 @@
+PS Control - Release Notes
+==========================
+Version : 0.1.3
+Date    : 2026-11-05
+Scope   : Phase 4 - Power supply front panel (Project_Plan.md v1.3, section 6)
+
+NEW
+---
+- Power supply front panel - the new main window.
+  * Toolbar: title, SIMULATION indicator, Settings, Sequence (disabled
+    until Phase 5), Theme, Exit.
+  * Voltage and Current limit sections: 7-segment setpoint display,
+    "Sent" value, range text, knob, numeric entry (applied on Enter or
+    when leaving the field), step up / step down buttons, step size
+    selector (sizes from config/presets/step_sizes.json).
+  * Output section: LED, ON/OFF text and Output button.
+  * Status bar: assigned AO channels, AO volts sent per channel, last
+    message (warnings orange, errors red).
+  * Reserved hidden "Measured" area per section for future readback
+    (FE-02).
+- Output behavior:
+  * Output OFF: setpoint changes are stored only.
+  * Output ON: setpoints are written; changes are written immediately.
+  * Slew-rate limit OFF (default): changes jump to the new value.
+  * Slew-rate limit ON: Output ON starts from the safe value and ramps to
+    the setpoints; changes ramp at 1 V/s and 5 A/s (defaults); a new
+    setpoint during a ramp continues from the current value; Output OFF
+    cancels the ramp and writes the safe value immediately.
+  * A hardware error switches the output OFF and shows the error.
+- Start-up: the AO channels are set up automatically. On the first start
+  the Settings window opens. If the configured device is missing, PS
+  Control offers to open Settings.
+- Settings button opens the Settings window (modal). After Save the front
+  panel takes over the new ranges, units and step sizes.
+- Theme button switches to the next theme folder (resources/themes) and
+  saves the choice. Display, LED and indicator colors come from the theme.
+- Exit / window close asks for confirmation while the output is ON.
+  Theme, step sizes and window position are saved on exit; the window
+  opens at the saved position (centered if it is not on a screen).
+- core/front_panel.py: Qt-free front-panel logic (ranges, step sizes,
+  knob mapping, display format, slew ramp), unit-tested.
+- New config value safety.slew_interval_ms (default 50, minimum 10):
+  time between two ramp steps. Existing settings files get it
+  automatically.
+- New theme colors: display_background, display_text, led_on, led_off.
+- 27 new tests (107 in total): front-panel logic, front-panel .ui file
+  check, and real Qt front-panel tests (offscreen).
+- Screenshot: docs/screenshots/main_panel_v0.1.3.png.
+
+CHANGED
+-------
+- python main.py / run_app.bat now open the front panel instead of the
+  Settings window.
+- The optional "Write test value" button of the Settings window
+  (Project_Plan.md 7.1) is not added: switching the output ON on the
+  front panel with a setpoint does the same check. Plan item closed.
+
+REMOVED
+-------
+- None.
+
+KNOWN LIMITATIONS
+-----------------
+- Sequence button is disabled until Phase 5.
+- Theme stylesheets (style.qss) are still placeholders until Phase 6; the
+  Theme button currently changes the display and LED colors.
+- Ramps are software-timed (QTimer); the actual interval can vary by a
+  few milliseconds on Windows. The ramp uses the measured elapsed time,
+  so the rate stays correct.

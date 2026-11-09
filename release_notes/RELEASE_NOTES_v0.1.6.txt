@@ -1,0 +1,23 @@
+PS Control - Release Notes
+==========================
+Version : 0.1.6
+Date    : 2026-11-09
+Scope   : Main-panel theme button removal and executable version metadata
+
+CHANGED
+-------
+- Removed the Theme button and its theme-cycling action from the main panel.
+  The configured theme continues to load at startup.
+- Set the Windows executable OriginalFilename to PS_Control.exe through the
+  explicit output filename.
+- Added the Windows FileVersion resource, generated from version.txt in
+  four-part numeric format.
+- Updated the project plan, handoff and user guide for the UI and EXE changes.
+
+VALIDATION
+----------
+- Targeted UI and front-panel tests: 20 passed.
+- Full test suite: 150 passed.
+- Nuitka standalone build succeeded; verified OriginalFilename = PS_Control.exe
+  and FileVersion = 0.1.6.0 in the built executable.
+- Verified the packaged main-panel UI does not contain btnTheme.

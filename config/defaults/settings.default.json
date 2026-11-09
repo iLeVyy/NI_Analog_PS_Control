@@ -1,0 +1,67 @@
+{
+  "meta": {
+    "config_version": 1,
+    "app_version": "",
+    "last_saved": ""
+  },
+  "voltage_channel": {
+    "device": "",
+    "physical_channel": "",
+    "device_ao_min": -10.0,
+    "device_ao_max": 10.0,
+    "ao_span_preset": "0_10",
+    "ao_min": 0.0,
+    "ao_max": 10.0,
+    "ps_min": 0.0,
+    "ps_max": 20.0,
+    "unit": "V",
+    "slope": 0.5,
+    "offset": 0.0
+  },
+  "current_channel": {
+    "device": "",
+    "physical_channel": "",
+    "device_ao_min": -10.0,
+    "device_ao_max": 10.0,
+    "ao_span_preset": "0_10",
+    "ao_min": 0.0,
+    "ao_max": 10.0,
+    "ps_min": 0.0,
+    "ps_max": 100.0,
+    "unit": "A",
+    "slope": 0.1,
+    "offset": 0.0
+  },
+  "safety": {
+    "safe_value_startup": 0.0,
+    "safe_value_exit": 0.0,
+    "slew_limit_enabled": false,
+    "slew_rate_voltage": 1.0,
+    "slew_rate_current": 5.0,
+    "slew_interval_ms": 50
+  },
+  "sequence": {
+    "min_step_duration_ms": 50,
+    "timing_mode": "software",
+    "ramp_interval_ms": 50,
+    "spin_wait_ms": 2,
+    "new_step_duration": 1.0,
+    "status_poll_ms": 100
+  },
+  "daq": {
+    "backend": "auto",
+    "min_driver_version": "",
+    "write_timeout_s": 2.0
+  },
+  "logging": {
+    "retention_days": 30,
+    "level": "INFO"
+  },
+  "ui": {
+    "theme": "dark",
+    "voltage_step": 0.1,
+    "current_step": 0.1,
+    "window_geometry": null,
+    "last_sequence_file": ""
+  }
+}

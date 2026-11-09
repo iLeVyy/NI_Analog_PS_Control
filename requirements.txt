@@ -1,0 +1,12 @@
+# requirements.txt - Python packages for PS Control.
+# Pin exact versions (==) after the first successful install on the build PC
+# (run: python -m pip freeze) and record the NI-DAQmx driver version in HANDOFF.md.
+
+# Qt for Python - user interface (used from Phase 3).
+PySide6>=6.6
+# NI official Python API for the NI-DAQmx driver (used from Phase 2).
+nidaqmx>=1.0
+# Unit test framework.
+pytest>=8.0
+# Python-to-C compiler used to build the standalone EXE.
+nuitka>=2.0

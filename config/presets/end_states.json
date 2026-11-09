@@ -1,0 +1,9 @@
+{
+  "catalog": "end_states",
+  "description": "Sequence end states for a normal end (D-03). warning=true shows the orange power-on warning.",
+  "default": "output_off",
+  "items": [
+    { "id": "output_off", "label": "Output OFF + safe value", "warning": false },
+    { "id": "hold_last",  "label": "Hold last value",         "warning": true }
+  ]
+}

@@ -1,0 +1,17 @@
+PS Control - Release Notes
+==========================
+Version : 0.1.5
+Date    : 2026-11-09
+Scope   : Nuitka standalone package naming and build script location
+
+CHANGED
+-------
+- Moved the Nuitka build script to the project root as build_nuitka.bat.
+- The build now publishes the standalone folder as build/dist/PS_Control,
+  containing PS_Control.exe and its runtime data.
+- Updated build and deployment documentation for the new script and output
+  paths.
+
+VALIDATION
+----------
+- Pending automated tests and a rebuild with the updated script.

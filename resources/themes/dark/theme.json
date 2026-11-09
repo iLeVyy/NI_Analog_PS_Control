@@ -1,0 +1,19 @@
+{
+  "id": "dark",
+  "label": "Dark (industrial)",
+  "description": "Dark blue-gray industrial theme with blue accent. Colors as Hex; LabVIEW decimal and RGB values are listed in PROJECT_OVERVIEW.txt section 7.",
+  "colors": {
+    "background": "#1E2530",
+    "panel": "#2A3340",
+    "text": "#E6EAF0",
+    "accent": "#2F80ED",
+    "warning": "#F2994A",
+    "error": "#EB5757",
+    "ok": "#27AE60",
+    "display_background": "#11161D",
+    "display_text": "#4FC3F7",
+    "led_on": "#27AE60",
+    "led_off": "#4A5563"
+  },
+  "stylesheet": "style.qss"
+}

@@ -1,0 +1,10 @@
+{
+  "catalog": "sequence_actions",
+  "description": "Sequence step actions (D-02). needs_setpoint=true means the voltage value is mandatory.",
+  "default": "set",
+  "items": [
+    { "id": "set",  "label": "Set",  "needs_setpoint": true },
+    { "id": "ramp", "label": "Ramp", "needs_setpoint": true },
+    { "id": "stop", "label": "Stop", "needs_setpoint": false }
+  ]
+}

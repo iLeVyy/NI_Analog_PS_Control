@@ -1,0 +1,40 @@
+{
+  "format_version": 1,
+  "name": "Test",
+  "description": "Sample Test",
+  "created": "2026-11-09T07:58:26",
+  "modified": "2026-11-09T07:58:26",
+  "timing_mode": "software",
+  "end_state": "output_off",
+  "repeat_count": 3,
+  "units": {
+    "voltage": "V",
+    "current": "A"
+  },
+  "ps_range_at_save": {
+    "voltage": [
+      0.0,
+      18.0
+    ],
+    "current": [
+      0.0,
+      50.0
+    ]
+  },
+  "steps": [
+    {
+      "duration": 5.0,
+      "unit": "s",
+      "voltage": 5.0,
+      "current": 0.0,
+      "action": "set"
+    },
+    {
+      "duration": 10.0,
+      "unit": "s",
+      "voltage": 13.0,
+      "current": 0.0,
+      "action": "ramp"
+    }
+  ]
+}

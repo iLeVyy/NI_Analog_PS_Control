@@ -1,0 +1,19 @@
+{
+  "id": "light",
+  "label": "Light",
+  "description": "Light theme with blue accent.",
+  "colors": {
+    "background": "#F4F6F9",
+    "panel": "#FFFFFF",
+    "text": "#1E2530",
+    "accent": "#2F80ED",
+    "warning": "#F2994A",
+    "error": "#EB5757",
+    "ok": "#27AE60",
+    "display_background": "#1E2530",
+    "display_text": "#7FD8FF",
+    "led_on": "#27AE60",
+    "led_off": "#B8C0CC"
+  },
+  "stylesheet": "style.qss"
+}

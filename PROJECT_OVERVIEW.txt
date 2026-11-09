@@ -1,0 +1,261 @@
+PS Control - User Guide (Project Overview)
+==========================================
+Version : 0.1.6
+Date    : 2026-11-09
+
+1. WHAT IS PS CONTROL?
+----------------------
+PS Control sets the output voltage and current limit of a programmable power
+supply through its analog control inputs, using NI analog-output (AO) modules
+and the NI-DAQmx driver. You always enter values in power supply units
+(V and A); the tool converts them to AO volts automatically.
+
+Planned functions (see docs/Project_Plan.md):
+  - Main panel that looks like a bench power supply (knobs, displays, Output ON/OFF)
+  - Settings window: scan NI devices, assign AO channels, set ranges and scaling
+  - Sequence window: time-based voltage/current profiles with repeat
+
+2. CURRENT STATUS (v0.1.6)
+--------------------------
+Phases 1-5 - all functions of version 1.0 are available: front panel,
+Settings window and Sequence window. Phase 6 (final look, Windows build,
+user manual) follows.
+Starting PS Control (run_app.bat) opens the power supply front panel.
+The AO channels are set up automatically (outputs OFF, safe value).
+  - First start: the Settings window opens so you can assign the channels.
+  - Configured device missing: PS Control offers to open Settings.
+
+Simulation: if NI-DAQmx is not installed, simulated devices are used
+automatically ("Auto" backend) and an orange SIMULATION label is shown.
+To always use the simulation, start with --simulate. To never use it,
+select "NI-DAQmx (real hardware)" as backend in the Settings window.
+
+Console check (no window): run_console.bat or python main.py --console.
+
+3. INSTALLATION (FROM SOURCE)
+-----------------------------
+  1. Install Python 3.11 or newer (add to PATH).
+  2. Double-click setup_venv.bat (creates .venv and installs packages).
+  3. Double-click run_tests.bat to check the installation.
+  4. Double-click run_app.bat to start the program.
+  (PySide6 is installed by setup_venv.bat. Without it, the console check
+  runs instead of the window.)
+
+Packaged build (maintainers): run the root-level build_nuitka.bat. The
+standalone application is created in build\dist\PS_Control\ with
+PS_Control.exe and its runtime files. Distribute that folder as a unit.
+The executable's Windows file properties show Original filename
+PS_Control.exe and the file version from version.txt.
+
+4. FILES AND FOLDERS YOU MAY USE
+--------------------------------
+  config\settings.json        Your settings. Created automatically on first
+                              start. If it becomes unreadable, it is renamed to
+                              settings.json.bak and defaults are used.
+  config\defaults\            Default values (do not edit unless you want to
+                              change the defaults for new installations).
+  config\presets\             Lists offered by the tool (AO span presets, step
+                              sizes, duration units, DAQ backends, ...). Add an
+                              item to a file to offer it - no programming needed.
+  config\simulation\          Simulated NI devices used when no hardware is
+                              available. Add a device item to simulate it.
+  ui\*.ui                     Window layouts (Qt Designer). Can be edited in
+                              Qt Designer; keep the object names.
+  resources\themes\           One folder per color theme.
+  sequences\                  Your sequence files (*.json). An example is
+                              included: Example_from_request.json.
+  logs\                       Daily log files (kept 30 days by default).
+
+5. FRONT PANEL (MAIN WINDOW)
+----------------------------
+Screenshot: docs\screenshots\main_panel_v0.1.3.png
+
+All values are in power supply units (V and A). PS Control converts them
+to the AO voltage automatically (see Settings).
+
+Voltage / Current limit sections
+  Display           The setpoint (7-segment).
+  Sent              The value sent right now. It differs from the setpoint
+                    while a slew-rate ramp is running.
+  Range             Power supply range from Settings.
+  Knob              Turn to change the setpoint by the selected step size.
+  Entry field       Type a value and press Enter (also applied when you
+                    leave the field). Values outside the range are limited.
+  Step size         Step of the knob and the step buttons
+                    (list from config\presets\step_sizes.json).
+
+Output
+  LED / text        Green and "ON" = the setpoints are written to the AO.
+                    Grey and "OFF" = both AO channels hold the safe value.
+  While OFF, setpoint changes are only stored. They are written when you
+  switch the output ON.
+
+Slew-rate limit (Settings > Safety)
+  Off (default)     Changes jump to the new value.
+  On                Output ON starts from the safe value and ramps to the
+                    setpoints; changes ramp at the set rates (default
+                    1 V/s and 5 A/s). Output OFF stops the ramp at once.
+
+Status bar
+  Left              Assigned AO channels (or "AO channels not set up").
+  Middle            AO voltage sent per channel.
+  Right             Last message: normal, orange = warning, red = error.
+  On a hardware error the output switches OFF and the error is shown.
+
+The controls are disabled while the AO channels are not set up.
+
+6. SEQUENCE WINDOW
+------------------
+Screenshot: docs\screenshots\sequence_window_running_v0.1.4.png
+Open it with the Sequence button on the front panel. It is a separate
+window; the front panel stays visible.
+
+Sequence options
+  Name / Description  Free text (the name defaults to the file name).
+  End state           What happens after the last step:
+                      Output OFF + safe value (default), or Hold last value
+                      (orange warning: power stays ON). The Stop button and
+                      errors ALWAYS switch the output OFF.
+  Repeat              How often the whole sequence runs. 0 = until stopped.
+  Show AO preview     Shows the AO voltage each row sends (read-only),
+                      e.g. "5" for Set or "5 -> 7.5" for Ramp.
+
+Step table (one row = one step, values in power supply units V and A)
+  Duration + Unit     How long the step lasts (ms, s or min).
+                      Minimum 50 ms.
+  Voltage [V]         Required. Must be inside the power supply range shown
+                      in the column title, e.g. (0-20).
+  Current [A]         Optional. Empty = current limit unchanged.
+  Action              Set  = jump to the values and hold them.
+                      Ramp = change linearly from the previous values to
+                             the row values during the step.
+                      Stop = end of the sequence (rows below are ignored).
+  Example (original request):
+      10 s   10 V  Set     -> 10 V for 10 s
+      20 s   15 V  Ramp    -> 10 V to 15 V in 20 s
+      100 ms  5 V  Set     -> 5 V for 100 ms
+      Stop
+  A decimal comma is accepted (2,5 = 2.5). Wrong cells turn red; the
+  reasons are listed below the table. Orange = warning only.
+
+Running a sequence
+  Start switches the output ON with the first row's values. The running
+  row is highlighted. The front panel is locked and shows the sequence
+  values. Editing is locked until the sequence ends.
+  Run monitor: state, cycle (e.g. "Cycle 2 / 5"), time in the current step,
+  total time and remaining time, progress bar, timing statistics.
+  Pause holds the current values and stops the time; Resume continues.
+  After the run the front panel shows the last sequence values.
+  Timing: steps start within a few milliseconds of the plan (Windows,
+  software timing). Each step start (planned, actual, deviation) is written
+  to the log file in the logs folder.
+
+7. SETTINGS WINDOW
+------------------
+Screenshot: docs\screenshots\settings_window_v0.1.2.png
+
+DAQ hardware
+  Backend           Which driver is used at the NEXT start:
+                    Auto = NI-DAQmx, or the simulation if NI-DAQmx is missing.
+  SIMULATION        Orange label: no real hardware is controlled.
+  Info line         Active backend, driver version, scan result.
+  Device table      Devices with analog outputs found by the last scan.
+
+Voltage control / Current control (one group each)
+  AO channel        NI analog output wired to the power supply control
+                    input. "(not present)" = configured but not found.
+  Device AO range   Output range of the NI device (from NI-DAQmx).
+  Used AO span      Voltage span of the power supply control input:
+                    0 - 5 V, 0 - 10 V (default) or Custom.
+  AO min / max      The used span in volts. Editable only for Custom.
+  Power supply      Range of the power supply that corresponds to the used
+  min / max         span, e.g. 0 - 20 V or 0 - 100 A. Min is normally 0.
+  Slope / Offset    Calculated scaling. A note appears when min is not 0.
+  Preview table     Power supply value and the AO voltage that is sent,
+                    at 0, 25, 50, 75 and 100 % of the range.
+  Example: 0 - 20 V supply on a 0 - 10 V span -> 10 V set = 5 V on the AO.
+
+Safety
+  Safe value at start / Output OFF / error
+                    Power supply value written to both channels when the
+                    channels are set up, when the output is switched OFF
+                    and after an error (normally 0).
+  Safe value at exit
+                    Value written when PS Control closes (normally 0).
+  Limit slew rate   When checked, front-panel changes ramp at the rates
+                    below instead of jumping.
+  Voltage / Current rate
+                    Ramp rates in V/s and A/s (defaults 1 V/s and 5 A/s).
+
+Messages (below the form)
+  Red ✖ = error (Save not possible), orange ⚠ = warning,
+  green ✔ = settings are valid. The first line shows the result of the
+  last action (e.g. "Saved. AO channels ready").
+
+8. BUTTON REFERENCE
+-------------------
+  Front panel
+  ⚙ Settings        Opens the Settings window. The front panel is blocked
+                    while Settings is open. Disabled while a sequence runs. After Save the front panel uses
+                    the new ranges; the output is switched OFF because the
+                    AO channels are set up again.
+  Sequence          Opens the Sequence window.
+  Exit              Closes PS Control. If the output is ON you are asked
+                    first; a running sequence is stopped. Both AO channels go to the safe value at exit.
+                    Step sizes and window position are remembered.
+  Output ON /       Switches the output ON (setpoints are written) or OFF
+  Output OFF        (safe value). The text shows the next action.
+                    While a sequence runs, Output OFF stops the sequence
+                    (output OFF + safe value).
+  ▲ / ▼             Increase / decrease the setpoint by one step.
+
+  Sequence window
+  New               Starts a new sequence with one row (asks first if
+                    there are unsaved changes).
+  Load...           Opens a sequence file from the sequences folder.
+  Save              Saves to the current file (asks for a name the first
+                    time). Sequences with errors can be saved; a hint is
+                    shown.
+  Save As...        Saves under a new file name.
+  Add               Adds a row at the end (copy of the last row).
+  Insert            Inserts a row above the selected row.
+  Delete            Deletes the selected row.
+  Duplicate         Copies the selected row below it.
+  Move ▲ / Move ▼   Moves the selected row up / down.
+  ▶ Start           Checks the sequence and starts it (output ON).
+                    Disabled while the AO channels are not set up.
+  ❚❚ Pause /        Pauses the sequence (values held, time stops) /
+  ▶ Resume          continues it.
+  ■ Stop            Stops the sequence: output OFF + safe value.
+  Closing the window while a sequence runs asks first, then stops it.
+
+  Settings window
+  Scan devices      Searches all NI devices with analog outputs and fills
+                    the device table and the AO channel lists. Runs
+                    automatically when the window opens. Disabled when no
+                    driver is available.
+  Restore Defaults  Fills the form with the default settings. Nothing is
+                    saved until you press Save. Theme and window position
+                    are kept.
+  Cancel            Closes the window. If there are unsaved changes, you
+                    are asked first. (Esc and the window close button do
+                    the same.)
+  Save              Checks the settings, writes config\settings.json and
+                    sets up the AO channels (outputs OFF, safe value). Both
+                    channels must be assigned. If there are errors, nothing
+                    is saved and the errors are shown in red.
+
+9. THEME COLORS (REFERENCE)
+---------------------------
+  Dark theme      Hex       LabVIEW (decimal)   R   G   B
+  background      #1E2530   1975600             30  37  48
+  panel           #2A3340   2765632             42  51  64
+  text            #E6EAF0   15133424            230 234 240
+  accent          #2F80ED   3113197             47  128 237
+  warning         #F2994A   15898954            242 153 74
+  error           #EB5757   15423319            235 87  87
+  ok              #27AE60   2600544             39  174 96
+  display_background #11161D   1119773             17  22  29
+  display_text    #4FC3F7   5227511             79  195 247
+  led_on          #27AE60   2600544             39  174 96
+  led_off         #4A5563   4871523             74  85  99

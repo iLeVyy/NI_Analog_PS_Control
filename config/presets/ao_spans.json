@@ -1,0 +1,10 @@
+{
+  "catalog": "ao_spans",
+  "description": "Used AO span presets offered in Settings. Add an item here to offer a new preset - no code change needed.",
+  "default": "0_10",
+  "items": [
+    { "id": "0_5",    "label": "0 - 5 V",  "ao_min": 0.0, "ao_max": 5.0 },
+    { "id": "0_10",   "label": "0 - 10 V", "ao_min": 0.0, "ao_max": 10.0 },
+    { "id": "custom", "label": "Custom",   "custom": true }
+  ]
+}

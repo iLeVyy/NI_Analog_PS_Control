@@ -1,0 +1,65 @@
+PS Control - Release Notes
+==========================
+Version : 0.1.2
+Date    : 2026-11-05
+Scope   : Phase 3 - Settings Window (Project_Plan.md v1.2, section 7)
+
+NEW
+---
+- Settings window (PySide6). In this version it is the main window that
+  opens when PS Control starts (Phase 4 adds the power supply front panel).
+  * DAQ hardware: backend selector (applies at next start), SIMULATION
+    indicator, driver / backend information, "Scan devices" button,
+    device table (device, product type, serial, AO channels, AO ranges).
+    The scan runs automatically when the window opens.
+  * Voltage control and Current control groups: AO channel selector
+    (configured channels that are missing in the scan stay visible as
+    "(not present)"), device AO range, used AO span preset (0 - 5 V,
+    0 - 10 V, Custom), AO min / max (editable for Custom only), power
+    supply min / max, slope / offset, scaling preview table.
+  * Safety: safe value at start / Output OFF / error, safe value at exit,
+    "Limit slew rate" checkbox with voltage and current rates (rate fields
+    enabled only when the box is checked).
+  * Live validation below the form: errors (red), warnings (orange),
+    "Settings are valid" (green), plus the result of the last action.
+  * Buttons: Restore Defaults, Cancel, Save.
+  * Save: checks the settings (both channels required; hardware checked
+    against the last scan), writes config/settings.json, then sets up the
+    AO channels (outputs OFF, safe value applied) and shows the result.
+  * Cancel / closing the window / Esc asks before discarding unsaved changes.
+  * Window sized to the screen (max. 90 %), centered, resizable, with a
+    scroll bar for small screens.
+- Window layout is a Qt Designer file (ui/settings_window.ui) loaded at run
+  time: layout changes need no code change. The code checks on start that
+  every required widget exists.
+- core/settings_editor.py: all Settings rules without Qt (unit-tested).
+- core/bootstrap.py: common start-up for GUI and console mode.
+- ui/daq_bridge.py: delivers DAQ events and command results to the UI
+  thread (the window never waits for the hardware).
+- New start option --console (previous console check); run_console.bat.
+- 26 new tests (80 in total): editor logic, .ui file check (no Qt needed),
+  and real Qt window tests (offscreen; skipped when PySide6 is missing).
+- Screenshot: docs/screenshots/settings_window_v0.1.2.png.
+
+CHANGED
+-------
+- python main.py / run_app.bat now start the GUI. Without PySide6 the
+  console check runs instead (with a log message).
+- Hardware check (device present, channel on device, span supported)
+  moved to core/daq_backend.check_hardware() and is shared by the DAQ
+  service and the Settings window.
+- build/build_nuitka.bat: PySide6 plugin enabled, GUI module included,
+  ui/*.ui copied next to the EXE.
+
+REMOVED
+-------
+- None.
+
+KNOWN LIMITATIONS
+-----------------
+- "Write test value" per channel (Project_Plan.md 7.1, optional) is not
+  included; it needs the Output ON logic of the front panel (Phase 4).
+- Theme stylesheets are still placeholders (Phase 6); the window uses the
+  standard Windows style. Message colors already come from the theme file.
+- Tested offscreen on Linux with PySide6 6.12; please check the look on
+  Windows at your screen resolutions.

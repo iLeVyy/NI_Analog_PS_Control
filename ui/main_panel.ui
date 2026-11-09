@@ -1,0 +1,463 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+  <class>MainPanelForm</class>
+  <widget class="QWidget" name="MainPanelForm">
+    <property name="windowTitle">
+      <string>PS Control</string>
+    </property>
+    <property name="geometry">
+      <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>1000</width>
+        <height>480</height>
+      </rect>
+    </property>
+    <layout class="QVBoxLayout" name="rootLayout">
+      <item>
+        <layout class="QHBoxLayout" name="toolbarLayout">
+          <item>
+            <widget class="QLabel" name="lblTitle">
+              <property name="text">
+                <string>PS Control</string>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <widget class="QLabel" name="lblSimulation">
+              <property name="text">
+                <string>SIMULATION</string>
+              </property>
+              <property name="toolTip">
+                <string>No real hardware is controlled - simulated devices are used.</string>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <spacer name="toolbarSpacer">
+              <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+                <size>
+                  <width>20</width>
+                  <height>20</height>
+                </size>
+              </property>
+            </spacer>
+          </item>
+          <item>
+            <widget class="QPushButton" name="btnSettings">
+              <property name="text">
+                <string>⚙ Settings</string>
+              </property>
+              <property name="toolTip">
+                <string>Open the Settings window (devices, channels, ranges, safety).</string>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <widget class="QPushButton" name="btnSequence">
+              <property name="text">
+                <string>Sequence</string>
+              </property>
+              <property name="toolTip">
+                <string>Open the Sequence window (available in a later version).</string>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <widget class="QPushButton" name="btnExit">
+              <property name="text">
+                <string>Exit</string>
+              </property>
+              <property name="toolTip">
+                <string>Close PS Control (outputs go to the exit safe value).</string>
+              </property>
+            </widget>
+          </item>
+        </layout>
+      </item>
+      <item>
+        <widget class="QScrollArea" name="scrollArea">
+          <property name="widgetResizable">
+            <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrollContent">
+            <layout class="QHBoxLayout" name="sectionsLayout">
+              <item>
+                <widget class="QGroupBox" name="v_gbSection">
+                  <property name="title">
+                    <string>Voltage</string>
+                  </property>
+                  <layout class="QGridLayout" name="v_sectionLayout" rowstretch="0,0,0,0,0,0,0,1">
+                    <item row="0" column="0" colspan="3">
+                      <widget class="QLCDNumber" name="v_lcdSetpoint">
+                        <property name="toolTip">
+                          <string>Setpoint (V)</string>
+                        </property>
+                        <property name="minimumSize">
+                          <size>
+                            <width>0</width>
+                            <height>90</height>
+                          </size>
+                        </property>
+                        <property name="maximumSize">
+                          <size>
+                            <width>16777215</width>
+                            <height>140</height>
+                          </size>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="1" column="0" colspan="3">
+                      <widget class="QLabel" name="v_lblActual">
+                        <property name="text">
+                          <string />
+                        </property>
+                        <property name="toolTip">
+                          <string>Value sent right now (differs from the setpoint while ramping).</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="2" column="0" colspan="3">
+                      <widget class="QLabel" name="v_lblRange">
+                        <property name="text">
+                          <string>Range</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="3" column="0" rowspan="3">
+                      <widget class="QDial" name="v_dialKnob">
+                        <property name="notchesVisible">
+                          <bool>true</bool>
+                        </property>
+                        <property name="wrapping">
+                          <bool>false</bool>
+                        </property>
+                        <property name="toolTip">
+                          <string>Turn to change the setpoint by the selected step size.</string>
+                        </property>
+                        <property name="minimumSize">
+                          <size>
+                            <width>120</width>
+                            <height>120</height>
+                          </size>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="3" column="1" colspan="2">
+                      <widget class="QDoubleSpinBox" name="v_dsbEntry">
+                        <property name="toolTip">
+                          <string>Type a value and press Enter (applied on Enter or when leaving the field).</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="4" column="1">
+                      <widget class="QPushButton" name="v_btnStepUp">
+                        <property name="text">
+                          <string>▲</string>
+                        </property>
+                        <property name="toolTip">
+                          <string>Increase by one step.</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="4" column="2">
+                      <widget class="QPushButton" name="v_btnStepDown">
+                        <property name="text">
+                          <string>▼</string>
+                        </property>
+                        <property name="toolTip">
+                          <string>Decrease by one step.</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="5" column="1" colspan="2">
+                      <widget class="QComboBox" name="v_cbStepSize">
+                        <property name="toolTip">
+                          <string>Step size of the knob and the step buttons.</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="6" column="0" colspan="3">
+                      <widget class="QGroupBox" name="v_gbMeasured">
+                        <property name="title">
+                          <string>Measured</string>
+                        </property>
+                        <layout class="QVBoxLayout" name="v_measuredLayout">
+                          <item>
+                            <widget class="QLabel" name="v_lblMeasured">
+                              <property name="text">
+                                <string>-</string>
+                              </property>
+                            </widget>
+                          </item>
+                        </layout>
+                      </widget>
+                    </item>
+                    <item row="7" column="0" colspan="3">
+                      <spacer name="v_sectionSpacer">
+                        <property name="orientation">
+                          <enum>Qt::Orientation::Vertical</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                          <size>
+                            <width>20</width>
+                            <height>20</height>
+                          </size>
+                        </property>
+                      </spacer>
+                    </item>
+                  </layout>
+                </widget>
+              </item>
+              <item>
+                <widget class="QGroupBox" name="i_gbSection">
+                  <property name="title">
+                    <string>Current limit</string>
+                  </property>
+                  <layout class="QGridLayout" name="i_sectionLayout" rowstretch="0,0,0,0,0,0,0,1">
+                    <item row="0" column="0" colspan="3">
+                      <widget class="QLCDNumber" name="i_lcdSetpoint">
+                        <property name="toolTip">
+                          <string>Setpoint (A)</string>
+                        </property>
+                        <property name="minimumSize">
+                          <size>
+                            <width>0</width>
+                            <height>90</height>
+                          </size>
+                        </property>
+                        <property name="maximumSize">
+                          <size>
+                            <width>16777215</width>
+                            <height>140</height>
+                          </size>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="1" column="0" colspan="3">
+                      <widget class="QLabel" name="i_lblActual">
+                        <property name="text">
+                          <string />
+                        </property>
+                        <property name="toolTip">
+                          <string>Value sent right now (differs from the setpoint while ramping).</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="2" column="0" colspan="3">
+                      <widget class="QLabel" name="i_lblRange">
+                        <property name="text">
+                          <string>Range</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="3" column="0" rowspan="3">
+                      <widget class="QDial" name="i_dialKnob">
+                        <property name="notchesVisible">
+                          <bool>true</bool>
+                        </property>
+                        <property name="wrapping">
+                          <bool>false</bool>
+                        </property>
+                        <property name="toolTip">
+                          <string>Turn to change the setpoint by the selected step size.</string>
+                        </property>
+                        <property name="minimumSize">
+                          <size>
+                            <width>120</width>
+                            <height>120</height>
+                          </size>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="3" column="1" colspan="2">
+                      <widget class="QDoubleSpinBox" name="i_dsbEntry">
+                        <property name="toolTip">
+                          <string>Type a value and press Enter (applied on Enter or when leaving the field).</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="4" column="1">
+                      <widget class="QPushButton" name="i_btnStepUp">
+                        <property name="text">
+                          <string>▲</string>
+                        </property>
+                        <property name="toolTip">
+                          <string>Increase by one step.</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="4" column="2">
+                      <widget class="QPushButton" name="i_btnStepDown">
+                        <property name="text">
+                          <string>▼</string>
+                        </property>
+                        <property name="toolTip">
+                          <string>Decrease by one step.</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="5" column="1" colspan="2">
+                      <widget class="QComboBox" name="i_cbStepSize">
+                        <property name="toolTip">
+                          <string>Step size of the knob and the step buttons.</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="6" column="0" colspan="3">
+                      <widget class="QGroupBox" name="i_gbMeasured">
+                        <property name="title">
+                          <string>Measured</string>
+                        </property>
+                        <layout class="QVBoxLayout" name="i_measuredLayout">
+                          <item>
+                            <widget class="QLabel" name="i_lblMeasured">
+                              <property name="text">
+                                <string>-</string>
+                              </property>
+                            </widget>
+                          </item>
+                        </layout>
+                      </widget>
+                    </item>
+                    <item row="7" column="0" colspan="3">
+                      <spacer name="i_sectionSpacer">
+                        <property name="orientation">
+                          <enum>Qt::Orientation::Vertical</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                          <size>
+                            <width>20</width>
+                            <height>20</height>
+                          </size>
+                        </property>
+                      </spacer>
+                    </item>
+                  </layout>
+                </widget>
+              </item>
+              <item>
+                <widget class="QGroupBox" name="gbOutput">
+                  <property name="title">
+                    <string>Output</string>
+                  </property>
+                  <layout class="QVBoxLayout" name="outputLayout">
+                    <item>
+                      <spacer name="outputSpacerTop">
+                        <property name="orientation">
+                          <enum>Qt::Orientation::Vertical</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                          <size>
+                            <width>20</width>
+                            <height>20</height>
+                          </size>
+                        </property>
+                      </spacer>
+                    </item>
+                    <item alignment="Qt::AlignmentFlag::AlignHCenter">
+                      <widget class="QLabel" name="lblLed">
+                        <property name="text">
+                          <string />
+                        </property>
+                        <property name="toolTip">
+                          <string>Green = output ON</string>
+                        </property>
+                        <property name="minimumSize">
+                          <size>
+                            <width>36</width>
+                            <height>36</height>
+                          </size>
+                        </property>
+                        <property name="maximumSize">
+                          <size>
+                            <width>36</width>
+                            <height>36</height>
+                          </size>
+                        </property>
+                      </widget>
+                    </item>
+                    <item alignment="Qt::AlignmentFlag::AlignHCenter">
+                      <widget class="QLabel" name="lblOutputState">
+                        <property name="text">
+                          <string>OFF</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item>
+                      <widget class="QPushButton" name="btnOutput">
+                        <property name="text">
+                          <string>Output ON</string>
+                        </property>
+                        <property name="toolTip">
+                          <string>Switch the output ON (setpoints are written) or OFF (safe value).</string>
+                        </property>
+                        <property name="minimumSize">
+                          <size>
+                            <width>140</width>
+                            <height>60</height>
+                          </size>
+                        </property>
+                      </widget>
+                    </item>
+                    <item>
+                      <spacer name="outputSpacerBottom">
+                        <property name="orientation">
+                          <enum>Qt::Orientation::Vertical</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                          <size>
+                            <width>20</width>
+                            <height>20</height>
+                          </size>
+                        </property>
+                      </spacer>
+                    </item>
+                  </layout>
+                </widget>
+              </item>
+            </layout>
+          </widget>
+        </widget>
+      </item>
+      <item>
+        <widget class="QFrame" name="frStatus">
+          <property name="frameShape">
+            <enum>QFrame::Shape::StyledPanel</enum>
+          </property>
+          <layout class="QHBoxLayout" name="statusLayout">
+            <item>
+              <widget class="QLabel" name="lblStatusChannels">
+                <property name="text">
+                  <string>-</string>
+                </property>
+              </widget>
+            </item>
+            <item>
+              <widget class="QLabel" name="lblStatusAo">
+                <property name="text">
+                  <string>-</string>
+                </property>
+              </widget>
+            </item>
+            <item>
+              <widget class="QLabel" name="lblStatusMessage">
+                <property name="text">
+                  <string />
+                </property>
+                <property name="wordWrap">
+                  <bool>true</bool>
+                </property>
+              </widget>
+            </item>
+          </layout>
+        </widget>
+      </item>
+    </layout>
+  </widget>
+  <resources />
+  <connections />
+</ui>

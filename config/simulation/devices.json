@@ -1,0 +1,17 @@
+{
+  "catalog": "simulated_devices",
+  "description": "Devices offered by the simulation backend. Add an item to simulate another AO module - no code change needed. ao_ranges is a list of [min, max] pairs in volts.",
+  "driver_version": "SIM-1.0",
+  "items": [
+    {
+      "id": "cDAQ1Mod1", "product_type": "NI 9263 (simulated)", "serial": "SIM0001",
+      "ao_channels": ["cDAQ1Mod1/ao0", "cDAQ1Mod1/ao1", "cDAQ1Mod1/ao2", "cDAQ1Mod1/ao3"],
+      "ao_ranges": [[-10.0, 10.0]]
+    },
+    {
+      "id": "Dev2", "product_type": "USB-6001 (simulated)", "serial": "SIM0002",
+      "ao_channels": ["Dev2/ao0", "Dev2/ao1"],
+      "ao_ranges": [[-10.0, 10.0]]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "catalog": "scaling_preview",
+  "description": "Percent points of the PS range shown in the Settings scaling preview table.",
+  "default": "p50",
+  "items": [
+    { "id": "p0",   "percent": 0 },
+    { "id": "p25",  "percent": 25 },
+    { "id": "p50",  "percent": 50 },
+    { "id": "p75",  "percent": 75 },
+    { "id": "p100", "percent": 100 }
+  ]
+}

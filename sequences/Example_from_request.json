@@ -1,0 +1,54 @@
+{
+  "format_version": 1,
+  "name": "Example from request",
+  "description": "10 s at 10 V, ramp to 15 V in 20 s, 100 ms at 5 V, Stop. Current limit unchanged.",
+  "created": "2026-11-05T16:09:11",
+  "modified": "2026-11-05T16:09:11",
+  "timing_mode": "software",
+  "end_state": "output_off",
+  "repeat_count": 1,
+  "units": {
+    "voltage": "V",
+    "current": "A"
+  },
+  "ps_range_at_save": {
+    "voltage": [
+      0.0,
+      20.0
+    ],
+    "current": [
+      0.0,
+      100.0
+    ]
+  },
+  "steps": [
+    {
+      "duration": 10,
+      "unit": "s",
+      "voltage": 10,
+      "current": null,
+      "action": "set"
+    },
+    {
+      "duration": 20,
+      "unit": "s",
+      "voltage": 15,
+      "current": null,
+      "action": "ramp"
+    },
+    {
+      "duration": 100,
+      "unit": "ms",
+      "voltage": 5,
+      "current": null,
+      "action": "set"
+    },
+    {
+      "duration": null,
+      "unit": "s",
+      "voltage": null,
+      "current": null,
+      "action": "stop"
+    }
+  ]
+}
